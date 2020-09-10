@@ -1,3 +1,3 @@
-client/class/*
+client/class/
 server/class/*
 *.class
