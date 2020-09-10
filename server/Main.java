@@ -1,6 +1,6 @@
-import java.rmi.ServerException;
+package server;
 
-import server.Server;
+import server.main.Server;
 
 public class Main 
 {
