@@ -46,4 +46,14 @@ public class Button extends JButton
         this.setBackground(color);
         return this;
     }
+
+    public Button defEnabled(boolean enable) {
+        this.setEnabled(enable);
+        return this;
+    }
+
+    public Button defActionListener(ActionListener listner) {
+        this.addActionListener(listner);
+        return this;
+    }
 }

@@ -11,25 +11,26 @@ import client.gui.panels.*;
 import client.gui.menu.TopMenuBar;
 import client.language.Language;
 import client.configuration.Config;
-import client.remote.Connection;
+import client.remote.ClientActions;
+import client.remote.ServerActions;
 
 public class Stage extends Frame
 {
-    Language language;
+    private Language language;
+    private Config config;
+    private ServerActions server_actions;
+    private ClientActions client_actions;
 
-    public Config conf;
+    public Stage(Config config, Language language, ServerActions server_actions, 
+            ClientActions client_actions) {
 
-    Connection connection;
-
-    public Stage() {
-
-        conf = new Config();
-        language = new Language(conf.getLanguage());
-
-        connection = new Connection(conf, language);
+        this.config = config;
+        this.language = language;
+        this.server_actions = server_actions;
+        this.client_actions = client_actions;
         
         this
-            .defTitle(conf.getTitle())
+            .defTitle(config.getTitle())
             .defDefaultCloseOperation( JFrame.EXIT_ON_CLOSE )
             .defLocationRelativeTo(null)
             .defBounds(0,0,380, 550)
@@ -50,7 +51,7 @@ public class Stage extends Frame
             .weight(1,0)
             .ipad(5,5)
             .anchor(GridBagConstraints.NORTHWEST)
-            .attach(new ClientIdentity(conf).getPanel(language), 
+            .attach(new ClientIdentity(config, server_actions).getPanel(language), 
                 "client_identity");
 
         stage_panel
@@ -59,7 +60,7 @@ public class Stage extends Frame
             .weight(1,0)
             .ipad(5,5)
             .anchor(GridBagConstraints.NORTH)
-            .attach(new LogoImage(conf).getPanel(), "logo_image");
+            .attach(new LogoImage(config).getPanel(), "logo_image");
 
         stage_panel
             .fill(GridBagConstraints.HORIZONTAL)
@@ -67,7 +68,8 @@ public class Stage extends Frame
             .weight(1,0)
             .ipad(5,5)
             .anchor(GridBagConstraints.NORTH)
-            .attach(new RemoteAccessForm().getPanel(language), "remote_access_form");
+            .attach(new RemoteAccessForm(server_actions, client_actions,
+                    language).getPanel(), "remote_access_form");
 
         stage_panel
             .fill(GridBagConstraints.HORIZONTAL)
@@ -81,16 +83,9 @@ public class Stage extends Frame
             .grid(0,4)
             .weight(1,1)
             .anchor(GridBagConstraints.NORTH)
-            .attach(new StatusSystemConnection(connection).getPanel(),
+            .attach(new StatusSystemConnection(server_actions).getPanel(),
                 "status_system");
 
         return stage_panel;
     }
-
-    
-
-    // public Panel getMainStage()
-    // {
-
-    // }
 }

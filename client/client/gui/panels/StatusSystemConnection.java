@@ -3,27 +3,26 @@ package client.gui.panels;
 import java.awt.GridBagConstraints;
 import java.awt.Color;
 import java.awt.Font;
-import java.util.function.Consumer;
 
 import client.gui.swing.Panel;
 import client.gui.swing.Label;
-import client.language.Language;
 import client.resources.Utils;
-import client.remote.Connection;
+import client.remote.ServerActions;
 
 public class StatusSystemConnection extends Panel
 {
 	private Label label_status;
 
-	public StatusSystemConnection(Connection connection) {
+	public StatusSystemConnection(ServerActions server_actions) {
 		super();
 
 		this.defBackground(Color.decode("#000000"));
 
-		label_status = new Label("Establish server connection...", 
-			Utils.toIcon("images/tip.png")).defFont(11, Font.BOLD);
+		label_status = new Label("", Utils.toIcon("images/tip.png"))
+			.defFont(11, Font.BOLD);
 		
-		connection.setStatusSystem(params -> setStatus((String)params[0], (Color)params[1]));
+		server_actions.add("setStatusSystem", params -> 
+			setStatus((String)params[0], (Color)params[1]));
 	}
 
 	public Panel getPanel() {

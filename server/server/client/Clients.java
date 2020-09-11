@@ -95,12 +95,15 @@ public class Clients {
                             continue;
                         if(traffic == null && baos.size() > LIMIT_BYTES_RECIEVE)
                             throw new Exception("Traffic bytes exceeded!");
-                        
+
+                        baos.reset();
+
                         boolean has_valid_destination = processTraffic(client, traffic);
                         
                         if(!has_valid_destination) {
                             client.sendTraffic(new JSONObject()
-                                .put("error", "Invalid user destination!"),
+                                .put("action", "showMessageError")
+                                .put("error", "Invalid remote ID!"),
                                 null,
                                 null,
                                 null);
@@ -109,7 +112,6 @@ public class Clients {
                 }
                 catch(Exception exception) {
                     connections.remove(client.getID());
-                    exception.printStackTrace();
                 }
             }
         };
@@ -144,7 +146,7 @@ public class Clients {
     private boolean processTraffic(Client client_sender, TrafficModel traffic) {
         
         JSONObject message = new JSONObject(new String(traffic.getMessage()));
-                        
+        System.out.println(message.getString("action"));
         String destination_id = message.getString("destination_id");
 
         if(connections.containsKey(destination_id)) {

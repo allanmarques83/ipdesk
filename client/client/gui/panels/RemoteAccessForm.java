@@ -11,18 +11,50 @@ import client.gui.swing.Panel;
 import client.gui.swing.Label;
 import client.gui.swing.Button;
 import client.gui.swing.TextField;
+import client.remote.ServerActions;
+import client.remote.ClientActions;
 
 public class RemoteAccessForm extends Panel
 {
-	public RemoteAccessForm() {
+      TextField remote_client_id, remote_client_password;
+      Button button_connect;
+
+      Language language;
+
+	public RemoteAccessForm(ServerActions server_actions, 
+ClientActions client_actions, Language language) {
 		super();
+
+            this.language = language;
+
+            remote_client_id = new TextField("")
+                  .setPlaceHolder(language.translate("Remote ID"), 16)
+                  .setOnlyNumbers(6)
+                  .setPreferredSize(100,24)
+                  .setHorizontalAlignment()
+                  .fireButtonClickWhenPressEnter(button_connect)
+                  .defFont(16, Font.PLAIN);
+
+            button_connect = new Button(language.translate("Connect"), null)
+                  .defEnabled(false)
+                  .defActionListener((e) -> client_actions.connect_to(
+                        remote_client_id.getText(), remote_client_password.getText()));
+
+            remote_client_password = new TextField("")
+                  .setPlaceHolder(language.translate("Password"), 16)
+                  .setPreferredSize(100,24)
+                  .setTextLimit(8)
+                  .fireButtonClickWhenPressEnter(button_connect)
+                  .setHorizontalAlignment()
+                  .defFont(16, Font.PLAIN);
+
+            server_actions.add("setEnabledButtonConnect", params -> 
+                  button_connect.defEnabled((boolean)params[0]));
 
 		this.defBackground(Color.decode("#FFFFFF"));
 	}
 
-	public Panel getPanel(Language language) {
-
-		JButton button_connect = new Button(language.translate("Connect"), null);
+	public Panel getPanel() {	
 
 		this
 			.fill(GridBagConstraints.NONE)
@@ -43,15 +75,7 @@ public class RemoteAccessForm extends Panel
                   .ipad(5,20)
                   .gridwidth(1)
                   .anchor(GridBagConstraints.NORTH)
-                  .attach(
-                  	new TextField("")
-                  		.setPlaceHolder(language.translate("Remote ID"), 16)
-                  		.setOnlyNumbers(6)
-                  		.setPreferredSize(100,24)
-                  		.setHorizontalAlignment()
-                  		.fireButtonClickWhenPressEnter(button_connect)
-                  		.defFont(16, Font.PLAIN),
-                  		"label_remote_access");
+                  .attach(remote_client_id, "label_remote_access");
 
             this
       		.fill(GridBagConstraints.NONE)
@@ -59,15 +83,7 @@ public class RemoteAccessForm extends Panel
                   .weight(0,0)
                   .gridwidth(1)
                   .anchor(GridBagConstraints.NORTHEAST)
-                  .attach(
-                  	new TextField("")
-                  		.setPlaceHolder(language.translate("Password"), 16)
-                  		.setPreferredSize(100,24)
-                  		.setTextLimit(8)
-                  		.fireButtonClickWhenPressEnter(button_connect)
-                  		.setHorizontalAlignment()
-                  		.defFont(16, Font.PLAIN),
-                  		"label_remote_access");
+                  .attach(remote_client_password, "label_remote_access");
 
             this
       		.fill(GridBagConstraints.NONE)

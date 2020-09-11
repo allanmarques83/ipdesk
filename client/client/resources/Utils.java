@@ -1,5 +1,6 @@
 package client.resources;
 
+import javax.swing.*;
 import java.io.*;
 import java.net.*;
 import java.util.HashMap;
@@ -12,6 +13,9 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 import javax.swing.border.EtchedBorder;
+import javax.swing.UIManager;
+import javax.swing.UIManager.LookAndFeelInfo;
+import javax.swing.UnsupportedLookAndFeelException;
 
 import client.Main;
 import traffic_model.TrafficModel;
@@ -36,18 +40,6 @@ public class Utils {
 	public static String getRandomPassword() {
 		return UUID.randomUUID().toString().substring(0,8);
 	}
-
-	public static Border getTitleBorder(String title, Color text_color)
-    {
-    	Border border = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED);
-
-        return BorderFactory.createTitledBorder(border, 
-            title, 
-            TitledBorder.DEFAULT_POSITION, 
-            TitledBorder.DEFAULT_POSITION, 
-            new Font("Arial",Font.PLAIN, 12), 
-            text_color); 
-    }
 
     public static boolean isInt(String value) {
         try {
@@ -87,7 +79,10 @@ public class Utils {
         }
     }
 
-    public static String getMacAddress(String ipAddress) {
+    public static String getMacAddress() {
+        String ipAddress = Utils.getOsSystem().equals("linux") ? 
+            Utils.getLinuxIpAddress() : Utils.getWindowsIpAddress();
+
         try {
             String firstInterface = null;        
             Map<String, String> addressByNetwork = new HashMap<>();
@@ -164,5 +159,24 @@ public class Utils {
         {
             return null;
         }
+    }
+
+    public static void applyNimbusLookAndFeel() {
+        try {
+            for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        }
+        catch(Exception exception) {
+            exception.printStackTrace();
+        }
+    }
+
+    public static boolean Error(String message) {
+        JOptionPane.showMessageDialog(null,message,"Erro!",JOptionPane.ERROR_MESSAGE); 
+        return false;
     }
 }

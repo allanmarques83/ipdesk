@@ -2,14 +2,21 @@ package client.remote;
 
 import java.io.*;
 import java.net.*;
+import java.lang.reflect.Method;
 import java.awt.Color;
 import java.util.function.Consumer;
+import java.util.Map;
+import java.util.HashMap;
+import javax.swing.DefaultListModel;
+import javax.swing.event.ListDataListener;
+import javax.swing.event.ListDataEvent;
 
 import org.json.JSONObject;
 
 import client.configuration.Config;
 import client.language.Language;
-import client.remote.ClientServer;
+import client.remote.ServerActions;
+import client.remote.ClientActions;
 import client.resources.Utils;
 import traffic_model.TrafficModel;
 
@@ -20,18 +27,24 @@ public class Connection
 
 	private Config config;
 	private Language language;
-	private ClientServer client;
+    private ServerActions server_actions;
+    private ClientActions client_actions;
 
-	public Consumer<Object[]> setStatusSystem;
+	private String CLIENT_ID;
+    private DefaultListModel<TrafficModel> TRAFFIC_QUEUE;
 
 	public Connection(Config config, Language language) {
 		this.config = config;
 		this.language = language;
-
-		establish(3, "Try to establish connection in: [%ds]");
 	}
 
-	private void establish(int seconds_delay, String status_message) {
+	public void setActions(ServerActions server_actions,
+			ClientActions client_actions) {
+		this.server_actions = server_actions;
+		this.client_actions = client_actions;
+	}
+
+	public void establish(String status_message, int seconds_delay) {
 
 		Thread thread = new Thread()
 		{
@@ -41,7 +54,7 @@ public class Connection
 					
 					while(steps > 0) {
 						Thread.sleep(1000);
-						setStatusSystem.accept(new Object[]{ 
+						server_actions.get("setStatusSystem").accept(new Object[]{ 
 							String.format(language.translate(status_message), steps), 
 								Color.decode("#FF0000")});
 						steps--;
@@ -50,15 +63,15 @@ public class Connection
 					InetAddress server_ip = InetAddress.getByName(config.getServerIp());
 					int server_port = config.getServerPort();
 
-					client = new ClientServer(new Socket(server_ip, server_port), config);
-
+					setSocketConnection(new Socket(server_ip, server_port));
+					
 					setServerListener();
 
-					sendClientIdentity();
+					sendClientIdentification();
 				}
 				catch(Exception exception) {
 					// exception.printStackTrace();
-					establish(30, "Error to connect! Try to establish connection in: [%ds]");
+					establish("Error to connect! Try to establish connection in: [%ds]", 30);
 				}
 			}
 		};
@@ -73,7 +86,7 @@ public class Connection
 				try 
                 {
                     BufferedInputStream stream = new BufferedInputStream(
-                        client.getSocket().getInputStream(), config.getMaxBytesSend());
+                        socket.getInputStream(), config.getMaxBytesSend());
 
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
@@ -85,15 +98,24 @@ public class Connection
                             continue;
                         if(traffic == null && baos.size() > config.getMaxBytesRecieve())
                             throw new Exception("Traffic bytes exceeded!");
+        				
+        				baos.reset();
 
-                        JSONObject tmp = new JSONObject(new String(traffic.getMessage()));
-                        System.out.println(tmp.getString("instruction"));
+                        JSONObject message = new JSONObject(
+                        	new String(traffic.getMessage()));
+
+        				System.out.println(message.getString("action"));
+
+                        Method action_method = ServerActions.class.getMethod(
+                        	message.getString("action"), TrafficModel.class);
+
+                        action_method.invoke(server_actions, traffic);
                     }
                 }
                 catch(Exception exception) {
-                	exception.printStackTrace();
-                	client.closeSocket();
-                	establish(30, "Try to establish connection in: [%ds]");
+                	// exception.printStackTrace();
+                	server_actions.closeServerSocket();
+                	establish("Try to establish connection in: [%ds]", 30);
                 }
             }
         };
@@ -112,18 +134,103 @@ public class Connection
         return Utils.toTrafficModel(baos.toByteArray());
     }
 
-	private void sendClientIdentity() {
-		client.sendTraffic(
+    public void setSocketConnection(Socket client_socket) throws Exception
+	{
+		this.socket = client_socket;
+
+		this.socket.setKeepAlive(true);
+		this.socket.setTcpNoDelay(true);
+		this.socket.setTrafficClass(0x10);
+		this.socket.setSoTimeout(7000);
+		this.socket.setPerformancePreferences(0,1,1);
+        this.socket.setReceiveBufferSize(this.config.getMaxBytesSend());
+        this.socket.setSendBufferSize(this.config.getMaxBytesSend());
+
+        this.buffer_stream = new BufferedOutputStream(this.socket.getOutputStream(),
+         	this.config.getMaxBytesSend());
+
+        TRAFFIC_QUEUE = new DefaultListModel<TrafficModel>();
+        
+        this.addQueueListener();
+	}
+
+	private void addQueueListener() {
+        TRAFFIC_QUEUE.addListDataListener(new ListDataListener()
+        {
+            public void intervalAdded(ListDataEvent e)
+            {
+                writeOnSocket(TRAFFIC_QUEUE.get(0));
+                TRAFFIC_QUEUE.remove(0);
+            }
+            public void contentsChanged(ListDataEvent e){}
+            public void intervalRemoved(ListDataEvent e){}
+        });
+    }
+
+    private void writeOnSocket(TrafficModel traffic) {
+        try
+        {
+            byte[] buffer = Utils.toByteArray(traffic);
+
+            this.buffer_stream.write(buffer,0,buffer.length);
+            this.buffer_stream.flush();
+        }
+        catch(Exception exception)
+        {
+            exception.printStackTrace();
+        }
+    }
+
+    public boolean sendTraffic(byte[] message, byte[] screen, byte[] file, 
+    	byte[] speaker) 
+    {
+        TRAFFIC_QUEUE.addElement(
+            new TrafficModel()
+            	.setMessage(message)
+            	.setImage(screen)
+            	.setFile(file)
+            	.setSpeaker(speaker));
+
+        return true;
+    }
+
+    public void removeTimeoutFromSocket() {
+        try {
+            this.socket.setSoTimeout(0);
+        } catch(Exception exception) {
+            exception.printStackTrace();
+        }
+    }
+
+	private void sendClientIdentification() {
+		this.sendTraffic(
 			new JSONObject()
-				.put("MAC", client.getClientMac())
+				.put("MAC", Utils.getMacAddress())
 				.put("SYSTEM_VERSION", config.getSystemVersion())
-				.put("SYSTEM_LANGUAGE", config.getLanguage()),
+				.put("SYSTEM_LANGUAGE", config.getLanguage())
+					.toString()
+						.getBytes(),
 			null,
 			null,
 			null);
 	}
 
-	public void setStatusSystem(Consumer<Object[]> status_system) {
-		setStatusSystem = status_system;
+	public void setClientId(String remote_client_id) {
+		CLIENT_ID = remote_client_id;
 	}
+
+	public String getClientId() {
+		return CLIENT_ID;
+	}
+
+    public void closeSocket() {
+        try 
+        {
+            this.socket.close();
+
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
+    }
+
 }

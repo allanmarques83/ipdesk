@@ -45,8 +45,6 @@ public class Client {
 
     public Client build(TrafficModel traffic) throws Exception {
 
-        System.out.println(traffic.getMessage().length);
-
         JSONObject client_config = new JSONObject(
             new String(traffic.getMessage())
         );
@@ -166,8 +164,8 @@ public class Client {
     public void sendWelcomeMessage() {
         sendTraffic(
             new JSONObject()
-                .put("instruction", "welcome")
-                .put("id", getID())
+                .put("action", "successfulServerEntry")
+                .put("client_id", getID())
                 .put("limit_bytes_send", MAX_BYTES_SEND)
                 .put("server_version", Constants.SERVER_VERSION),
             null,
