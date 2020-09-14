@@ -1,0 +1,6 @@
+o controlado deverá ter a informação do controlador no botão de conexão, podendo matar a mesma
+recusar qualquer action de servidor com sender_id que não esteja controlando o PC
+
+Servidor:
+Watch Traffic:
+	

@@ -5,31 +5,41 @@ import java.io.*;
 import java.util.Iterator;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
+import javafx.collections.ObservableMap;
 
 import org.json.JSONArray;
 
 import server.resources.Utils;
-
+import server.exceptions.ClientValidationException;
 
 public class ClientValidation {
     
     JSONArray black_list;
 
-    public ClientValidation() throws Exception
-    {
+    ObservableMap<String, Client> connections;
+
+    public ClientValidation(ObservableMap<String, Client> connections) throws Exception {
+        this.connections = connections;
         black_list = new JSONArray(Utils.getFileContent("BlackList.conf"));
     }
 
-    public void validate(Client client) throws Exception {
+    public void process(Client client) throws ClientValidationException {
 
-        // if(!isMac(client.getMac()))
-        //     throw new Exception("Invalid MAC address");
+        if(!isMac(client.getMac())) {
+            throw new ClientValidationException("Invalid MAC address", client, false);
+        }
         
-        if(!isIp(client.getIp()))
-            throw new Exception("Invalid IP address");
+        if(!isIp(client.getIp())) {
+            throw new ClientValidationException("Invalid IP address", client, false);
+        }
         
-        if(isMacBanish(client.getMac()))
-            throw new Exception("MAC was banish from this server");
+        if(isMacBanish(client.getMac())) {
+            throw new ClientValidationException("MAC was banish from this server", client, true);
+        }
+
+        if(containsId(client.getID())) {
+            throw new ClientValidationException("You are already connected in another PC", client, true);
+        }
     }
 
 
@@ -54,5 +64,9 @@ public class ClientValidation {
 
     private boolean isMacBanish(String mac) {
         return black_list.toList().contains(mac);
+    }
+
+    private boolean containsId(String id) {
+        return connections.containsKey(id);
     }
 }

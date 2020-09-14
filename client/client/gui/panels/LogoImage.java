@@ -7,6 +7,7 @@ import client.gui.swing.Panel;
 import client.gui.swing.Label;
 import client.resources.Utils;
 import client.configuration.Config;
+import client.resources.Constants;
 
 public class LogoImage extends Panel
 {
@@ -17,7 +18,7 @@ public class LogoImage extends Panel
 
 		logo_file_path = config.getLogoFilePath();
 
-		this.defBackground(Color.decode("#FFFFFF"));
+		this.defBackground(Constants.Colors.white);
 	}
 
 	public Panel getPanel() {

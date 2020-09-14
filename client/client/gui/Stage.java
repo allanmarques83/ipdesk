@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.GridBagConstraints;
 import java.awt.Color;
 
+
 import org.json.JSONObject;
 
 import client.gui.swing.*;
@@ -13,6 +14,7 @@ import client.language.Language;
 import client.configuration.Config;
 import client.remote.ClientActions;
 import client.remote.ServerActions;
+import client.resources.Constants;
 
 public class Stage extends Frame
 {
@@ -28,7 +30,7 @@ public class Stage extends Frame
         this.language = language;
         this.server_actions = server_actions;
         this.client_actions = client_actions;
-        
+
         this
             .defTitle(config.getTitle())
             .defDefaultCloseOperation( JFrame.EXIT_ON_CLOSE )
@@ -43,7 +45,7 @@ public class Stage extends Frame
     public Panel getMainPanel() {
 
         Panel stage_panel = new Panel()
-            .defBackground(Color.decode("#FFFFFF"));
+            .defBackground(Constants.Colors.white);
 
         stage_panel
             .fill(GridBagConstraints.HORIZONTAL)

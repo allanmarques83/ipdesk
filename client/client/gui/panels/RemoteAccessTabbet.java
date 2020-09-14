@@ -8,7 +8,7 @@ import client.gui.swing.Panel;
 import client.gui.tables.ActiveRemoteAccessTable;
 import client.gui.tables.SavedRemoteIds;
 import client.language.Language;
-
+import client.resources.Constants;
 
 public class RemoteAccessTabbet extends Panel
 {
@@ -18,7 +18,7 @@ public class RemoteAccessTabbet extends Panel
 
 		super();
 
-		this.defBackground(Color.decode("#FFFFFF"));
+		this.defBackground(Constants.Colors.white);
 
 		tab_remote_access = new JTabbedPane();
 

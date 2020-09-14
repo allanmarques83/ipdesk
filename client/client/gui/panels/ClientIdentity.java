@@ -6,7 +6,7 @@ import java.awt.GridBagConstraints;
 
 import client.language.Language;
 import client.configuration.Config;
-import client.resources.Utils;
+import client.resources.*;
 import client.gui.swing.Panel;
 import client.gui.swing.Label;
 import client.gui.swing.TextField;
@@ -14,22 +14,25 @@ import client.remote.ServerActions;
 
 public class ClientIdentity extends Panel
 {
-    Label label_client_id;
+    TextField textfield_client_id;
 	String system_password;
 
 	public ClientIdentity(Config config, ServerActions server_actions) {
 		super();
 
-        server_actions.add("setRemoteClientId", params -> 
-            label_client_id.setText((String)params[0]));
+        server_actions.addAction("setRemoteClientId", params -> 
+            textfield_client_id.setText((String)params[0]));
 
 		this.system_password = config.getPassword();
 
-        this.label_client_id = new Label("")
-            .defForeground(Color.decode("#000000"))
-            .defFont(16, Font.PLAIN);
+        this.textfield_client_id = new TextField("")
+            .defBackground(Constants.Colors.mercury)
+            .defForeground(Constants.Colors.black)
+            .defFont(16, Font.PLAIN)
+            .defEditable(false) 
+            .defBorder(null);
 
-		this.defBackground(Color.decode("#E4E4E4"));
+		this.defBackground(Constants.Colors.mercury);
 	}
 
 	public Panel getPanel(Language language) {
@@ -42,7 +45,7 @@ public class ClientIdentity extends Panel
             .anchor(GridBagConstraints.NORTHWEST)
             .attach(
             	new Label(language.translate("Your ID:"))
-            		.defForeground(Color.decode("#0000FF"))
+            		.defForeground(Constants.Colors.blue)
             		.defFont(16, Font.ITALIC), "client_id_title");
 
         this
@@ -50,7 +53,7 @@ public class ClientIdentity extends Panel
 			.grid(1,0)
             .weight(1,0)
             .insets(5,5,5,5)
-            .attach(this.label_client_id, "client_id_value");
+            .attach(this.textfield_client_id, "client_id_value");
 
         this
             .fill(GridBagConstraints.NONE)
@@ -59,7 +62,7 @@ public class ClientIdentity extends Panel
             .insets(5,5,5,5)
             .attach(
             	new Label(language.translate("Password:"))
-            		.defForeground(Color.decode("#0000FF"))
+            		.defForeground(Constants.Colors.blue)
             		.defFont(16, Font.ITALIC), "client_pass_title");
 
         this
@@ -67,9 +70,12 @@ public class ClientIdentity extends Panel
 			.grid(3,0)
             .weight(0,0)
             .attach(
-            	new Label(system_password)
-            		.defForeground(Color.decode("#000000"))
-            		.defFont(16, Font.PLAIN), "client_pass_value");
+            	new TextField(system_password)
+            		.defForeground(Constants.Colors.black)
+            		.defFont(16, Font.PLAIN)
+                    .defBorder(null)
+                    .defEditable(false)
+                    .defBackground(Constants.Colors.mercury), "client_pass_value");
 
         return this;
 	}

@@ -7,24 +7,26 @@ import java.awt.Font;
 
 import client.language.Language;
 import client.resources.Utils;
-import client.gui.swing.Panel;
-import client.gui.swing.Label;
-import client.gui.swing.Button;
-import client.gui.swing.TextField;
+import client.resources.Constants;
+import client.gui.swing.*;
 import client.remote.ServerActions;
 import client.remote.ClientActions;
+import client.gui.buttons.ButtonConnect;
+
 
 public class RemoteAccessForm extends Panel
 {
       TextField remote_client_id, remote_client_password;
-      Button button_connect;
+      ButtonConnect button_connect;
 
       Language language;
+      ClientActions client_actions;
 
 	public RemoteAccessForm(ServerActions server_actions, 
 ClientActions client_actions, Language language) {
 		super();
 
+            this.client_actions = client_actions;
             this.language = language;
 
             remote_client_id = new TextField("")
@@ -35,10 +37,10 @@ ClientActions client_actions, Language language) {
                   .fireButtonClickWhenPressEnter(button_connect)
                   .defFont(16, Font.PLAIN);
 
-            button_connect = new Button(language.translate("Connect"), null)
-                  .defEnabled(false)
-                  .defActionListener((e) -> client_actions.connect_to(
-                        remote_client_id.getText(), remote_client_password.getText()));
+            button_connect = new ButtonConnect(language, client_actions);
+            button_connect.defActionListener((e) -> 
+                  button_connect.fireActionButton(remote_client_id.getText(),
+                        remote_client_password.getText()));
 
             remote_client_password = new TextField("")
                   .setPlaceHolder(language.translate("Password"), 16)
@@ -48,10 +50,16 @@ ClientActions client_actions, Language language) {
                   .setHorizontalAlignment()
                   .defFont(16, Font.PLAIN);
 
-            server_actions.add("setEnabledButtonConnect", params -> 
+            server_actions.addAction("setEnabledButtonConnect", params -> 
                   button_connect.defEnabled((boolean)params[0]));
 
-		this.defBackground(Color.decode("#FFFFFF"));
+            server_actions.addAction("restoreButtonConnect", params -> 
+                  button_connect.restoreButtonConnect());
+
+            server_actions.addData("isWaitingForResponse", () -> 
+                  new Object[]{button_connect.getActionCommand()});
+
+		this.defBackground(Constants.Colors.white);
 	}
 
 	public Panel getPanel() {	

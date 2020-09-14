@@ -179,4 +179,13 @@ public class Utils {
         JOptionPane.showMessageDialog(null,message,"Erro!",JOptionPane.ERROR_MESSAGE); 
         return false;
     }
+
+    public static void loopDelay(int seconds) {
+        try {
+            Thread.sleep((seconds*1000));
+        }
+        catch(Exception ex) {
+            ex.printStackTrace();
+        }
+    }
 }

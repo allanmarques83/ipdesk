@@ -11,12 +11,13 @@ import org.json.JSONObject;
 
 import server.resources.Constants;
 import server.resources.Utils;
+import server.exceptions.ClientValidationException;
 
 import traffic_model.TrafficModel;
 
 public class Clients {
 
-    ObservableMap<String, Client> connections;
+    private ObservableMap<String, Client> connections;
 
     ClientValidation client_validation;
 
@@ -26,9 +27,10 @@ public class Clients {
     {
         try
         {
-            client_validation = new ClientValidation();
-
             connections = FXCollections.observableHashMap();
+            
+            client_validation = new ClientValidation(connections);
+
             addConnectionsListener();
         }
         catch (Exception exception)
@@ -43,6 +45,8 @@ public class Clients {
         {
             public void run() 
             {
+                Client client = null;
+
 				try
 				{
                     socket.setSoTimeout(7000);
@@ -53,15 +57,15 @@ public class Clients {
 
                     TrafficModel traffic = Utils.toTrafficModel(buffer_data);
         
-                    Client client = new Client(socket).build(traffic);
+                    client = new Client(socket).build(traffic);
 
-                    client_validation.validate(client);
+                    client_validation.process(client);
                     
                     connections.put(client.getID(), client);
 
                     client.sendWelcomeMessage();
                     
-                    startListener(client);
+                    addClientListener(client);
                 }
                 catch (Exception exception)
 				{
@@ -74,8 +78,7 @@ public class Clients {
         thread.start();
     }
 
-    public void startListener(Client client)
-    {
+    public void addClientListener(Client client) {
         Thread thread = new Thread()
 		{
 			public void run() 
@@ -87,7 +90,7 @@ public class Clients {
 
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-                    while(true)
+                    while(!client.getSocket().isClosed())
                     {
                         TrafficModel traffic = getTraffic(stream, baos);
                         
@@ -111,6 +114,7 @@ public class Clients {
                     }
                 }
                 catch(Exception exception) {
+                    exception.printStackTrace();
                     connections.remove(client.getID());
                 }
             }

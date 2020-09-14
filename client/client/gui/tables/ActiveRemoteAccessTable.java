@@ -18,6 +18,7 @@ import client.gui.swing.Table;
 import client.gui.swing.Button;
 import client.language.Language;
 import client.resources.Utils;
+import client.resources.Constants;
 
 public class ActiveRemoteAccessTable extends Table
 {
@@ -31,8 +32,8 @@ public class ActiveRemoteAccessTable extends Table
 		this
 			.defModel(getTableModel())
 			.setDefaultRenderer(getRenderTable())
-            .setHeaderColor(Color.decode("#E4E4E4"))
-            .defBackground(Color.decode("#E4E4E4"))
+            .setHeaderColor(Constants.Colors.mercury)
+            .defBackground(Constants.Colors.mercury)
             .defRowHeight(20)
             .defAutoCreateRowSorter(true)
             .setSizeOfColunms(new int[][]{ 
@@ -70,7 +71,7 @@ public class ActiveRemoteAccessTable extends Table
                 Button btn = new Button(text_content, null)
                     .defBorder(null)
                     .defFocusPainted(false)
-                    .defBackground(Color.decode("#E4E4E4"));
+                    .defBackground(Constants.Colors.mercury);
 
                 String column_name = table.getColumnName(column);
 
@@ -96,7 +97,7 @@ public class ActiveRemoteAccessTable extends Table
                 }
                     
                 if(isSelected)
-                    btn.setBackground(Color.decode("#8EEDFF")); 
+                    btn.setBackground(Constants.Colors.anakiwa); 
                   
                 return btn;
             }

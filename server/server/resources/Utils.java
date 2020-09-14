@@ -4,6 +4,7 @@ import java.net.*;
 import java.io.*;
 import java.util.Arrays;
 
+import server.Main;
 import traffic_model.TrafficModel;
 
 public class Utils
@@ -11,6 +12,10 @@ public class Utils
     public static String getEnv(String env_name) {
         
         return System.getenv().get(env_name);
+    }
+
+    public static String getPath(String file) {
+        return Main.class.getResource("").getPath().concat("/").concat(file);
     }
 
     public static TrafficModel toTrafficModel(byte[] data) {
@@ -56,7 +61,7 @@ public class Utils
 
 	public static String getFileContent(String nameOfFile) throws Exception {
 		
-		File file = new File(nameOfFile); 
+		File file = new File(Utils.getPath(nameOfFile)); 
   
   		BufferedReader br = new BufferedReader(new FileReader(file)); 
   

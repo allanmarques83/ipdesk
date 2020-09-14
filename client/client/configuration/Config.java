@@ -3,20 +3,25 @@ package client.configuration;
 import java.io.*;
 
 import org.json.JSONObject;
+import org.json.JSONArray;
 
 import client.resources.Utils;
 
 public class Config {
+
+    JSONObject configuration;
 
     private String TITLE, LANGUAGE, PASSWORD, LOGO_FILE, SERVER_IP;
 
     private int SERVER_PORT, MAX_BYTES_SEND, MAX_BYTES_RECIEVE;
 
     private double SYSTEM_VERSION;
+
+    private JSONArray BLOCKEDS_IDS, TRUSTEDS_IDS;
     
     public Config() {
         
-        JSONObject configuration = getConf();
+        this.configuration = getConf();
 
         setSystemVersion(2.0);
 
@@ -26,6 +31,8 @@ public class Config {
         setLogoFilePath(configuration.optString("system_logo", "images/ipdesk.jpg"));
         setServerIp(configuration.optString("server_ip", "127.0.1.1"));
         setServerPort(configuration.optInt("server_port", 1527));
+        setBlockedsIds(configuration.optString("blockeds_ids", "[]"));
+        setTrustedsIds(configuration.optString("trusteds_ids", "[]"));
         
         setMaxBytesSend(20480);
         setMaxBytesRecieve(131072);
@@ -67,6 +74,15 @@ public class Config {
             MAX_BYTES_RECIEVE = max_bytes;
     }
 
+    public JSONArray setBlockedsIds(String blockeds_ids) {
+        BLOCKEDS_IDS = new JSONArray(blockeds_ids);
+        return BLOCKEDS_IDS;
+    }
+
+    public void setTrustedsIds(String trusteds_ids) {
+        TRUSTEDS_IDS = new JSONArray(trusteds_ids);
+    }
+
     public double getSystemVersion() {
         return SYSTEM_VERSION;
     }
@@ -103,6 +119,14 @@ public class Config {
         return MAX_BYTES_RECIEVE;
     }
 
+    public JSONArray getBlockedsIds() {
+        return BLOCKEDS_IDS;
+    }
+
+    public JSONArray getTrustedsIds() {
+        return TRUSTEDS_IDS;
+    }
+
     private JSONObject getConf()
     {   
         try
@@ -117,11 +141,11 @@ public class Config {
         } 
         catch(Exception exception)
         {  
-            return setConf(null);
+            return createConfig(null);
         }
     }
 
-    private JSONObject setConf(JSONObject config)
+    private JSONObject createConfig(JSONObject config)
     {      
         try
         {
@@ -131,12 +155,7 @@ public class Config {
             PrintWriter saida = new PrintWriter(writer,false); 
 
             if(config == null)
-            {
-                config = new JSONObject()
-                    .put("system_title", "iPdesk")
-                    .put("language", "EN");
-                
-            }
+                config = new JSONObject();
 
             saida.println(config.toString());
            
@@ -149,5 +168,10 @@ public class Config {
             // Utils.Error(ex, "Exception", "setPropretiesSys", "");
             return null;
         }  
+    }
+
+    public void setConfig(String conf_name, String conf_value) {
+        configuration.put(conf_name, conf_value);
+        createConfig(configuration);
     }
 }

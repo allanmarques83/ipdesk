@@ -17,6 +17,11 @@ public class Button extends JButton
 		super(text, icon);
 	}
 
+    public Button defActionCommand(String command) {
+        this.setActionCommand(command);
+        return this;
+    }
+
 	public Button defBorder(Border border) {
         this.setBorder(border);
         return this;

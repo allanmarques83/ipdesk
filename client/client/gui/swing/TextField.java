@@ -22,6 +22,11 @@ public class TextField extends JTextField
         this.setForeground(color);
         return this;
     }
+    
+    public TextField defBackground(Color color) {
+        this.setBackground(color);
+        return this;
+    }
 
     public TextField defFont(int size, int font_style) {
         this.setFont(new Font("Arial", font_style, size));
@@ -30,6 +35,11 @@ public class TextField extends JTextField
 	
 	public TextField defEnabled(boolean enable) {
         this.setEnabled(enable);
+        return this;
+    }
+
+    public TextField defEditable(boolean editable) {
+        this.setEditable(editable);
         return this;
     }
 

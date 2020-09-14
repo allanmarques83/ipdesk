@@ -18,6 +18,7 @@ import client.gui.swing.Table;
 import client.gui.swing.Button;
 import client.language.Language;
 import client.resources.Utils;
+import client.resources.Constants;
 
 public class SavedRemoteIds extends Table
 {
@@ -31,8 +32,8 @@ public class SavedRemoteIds extends Table
 		this
 			.defModel(getTableModel())
 			.setDefaultRenderer(getRenderTable())
-            .setHeaderColor(Color.decode("#E4E4E4"))
-            .defBackground(Color.decode("#E4E4E4"))
+            .setHeaderColor(Constants.Colors.mercury)
+            .defBackground(Constants.Colors.mercury)
             .defRowHeight(20)
             .defAutoCreateRowSorter(true)
             .setNumsOfclicksToEdit(1)
@@ -94,7 +95,7 @@ public class SavedRemoteIds extends Table
                 }
                     
                 if(isSelected)
-                    btn.setBackground(Color.decode("#8EEDFF")); 
+                    btn.setBackground(Constants.Colors.anakiwa); 
                   
                 return btn;
             }

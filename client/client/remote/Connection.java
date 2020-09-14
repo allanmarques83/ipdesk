@@ -18,6 +18,7 @@ import client.language.Language;
 import client.remote.ServerActions;
 import client.remote.ClientActions;
 import client.resources.Utils;
+import client.resources.Constants;
 import traffic_model.TrafficModel;
 
 public class Connection
@@ -54,9 +55,9 @@ public class Connection
 					
 					while(steps > 0) {
 						Thread.sleep(1000);
-						server_actions.get("setStatusSystem").accept(new Object[]{ 
+						server_actions.getAction("setStatusSystem").accept(new Object[]{ 
 							String.format(language.translate(status_message), steps), 
-								Color.decode("#FF0000")});
+								Constants.Colors.red});
 						steps--;
 					}
 
@@ -90,7 +91,7 @@ public class Connection
 
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-                    while(true)
+                    while(!socket.isClosed())
                     {
                         TrafficModel traffic = getTraffic(stream, baos);
                         
