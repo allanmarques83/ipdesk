@@ -53,10 +53,10 @@ ClientActions client_actions, Language language) {
             server_actions.addAction("setEnabledButtonConnect", params -> 
                   button_connect.defEnabled((boolean)params[0]));
 
-            server_actions.addAction("restoreButtonConnect", params -> 
-                  button_connect.restoreButtonConnect());
+            server_actions.addAction("setButtonConnectionAction", params -> 
+                  button_connect.setButtonConnectionAction(params));
 
-            server_actions.addData("isWaitingForResponse", () -> 
+            server_actions.addData("getButtonConnectAcion", () -> 
                   new Object[]{button_connect.getActionCommand()});
 
 		this.defBackground(Constants.Colors.white);

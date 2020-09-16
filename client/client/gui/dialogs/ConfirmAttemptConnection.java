@@ -20,13 +20,13 @@ public class ConfirmAttemptConnection
 	public ConfirmAttemptConnection(String sender_id, Language language) {
 		this.language = language;
 
-		String message = language.translate(String.format(
-			"Connection recieve from remote ID: %s\nAccept to be controlled?", 
-				sender_id));
+		String message = String.format(language.translate(
+			"Connection recieve from remote ID: %s\nAccept to be controlled?"), 
+				sender_id);
 
 
 		Object[] options = new Object[]{
-			language.translate(String.format("Block %s", sender_id)),
+			String.format(language.translate("Block %s"),sender_id),
 			language.translate("No"),
 			language.translate("Yes")};
 
@@ -94,8 +94,8 @@ public class ConfirmAttemptConnection
                    		while(seconds_delay > 0)
                    		{
                    			Utils.loopDelay(1);
-                   			yes_btn.setText(language.translate(String.format(
-                   				"Yes [%d]",seconds_delay)));
+                   			yes_btn.setText(String.format(language.translate(
+                   				"Yes [%d]"),seconds_delay));
                    			
                    			seconds_delay--;
                    		}

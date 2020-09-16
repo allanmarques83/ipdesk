@@ -9,6 +9,7 @@ import java.awt.Font;
 import java.awt.Dimension;
 import javax.swing.JTable;
 import java.awt.event.*;
+import java.util.Vector;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.DefaultTableModel;
@@ -21,22 +22,24 @@ import javax.swing.border.EtchedBorder;
 public class Table extends JTable
 {
 	JScrollPane scroll_table;
+    DefaultTableModel model;
 
 	public Table() {
 		super();
 	}
 
 	public Table defModel(DefaultTableModel model) {
+        this.model = model;
 		this.setModel(model);
 		return this;
 	}
 
-	public Table setDefaultRenderer(TableCellRenderer render) {
+	public Table defDefaultRenderer(TableCellRenderer render) {
         this.setDefaultRenderer(Object.class, render);
         return this;
     }
 
-    public Table addMouseListener(MouseAdapter mouse) {
+    public Table defMouseListener(MouseAdapter mouse) {
         this.addMouseListener(mouse);
         return this;
     }
@@ -114,6 +117,26 @@ public class Table extends JTable
     }
 
     public void addRow(Object[] row) {
-    	((DefaultTableModel)this.getModel()).addRow(row);
+    	this.model.addRow(row);
+    }
+
+    public void removeRow(int row_index) {
+        this.model.removeRow(row_index);
+    }
+
+    public Table setDataVector(Vector<Vector> data_vector, 
+        boolean clear_previous_data) {
+        if(clear_previous_data)
+            this.model.getDataVector().clear();
+
+        
+        this.model.getDataVector().addAll(data_vector);
+        this.model.fireTableDataChanged();
+
+        return this;
+    }
+
+    public Vector<Vector> getDataVector() {
+        return this.model.getDataVector();
     }
 }

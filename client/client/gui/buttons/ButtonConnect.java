@@ -30,6 +30,12 @@ public class ButtonConnect extends Button
                   return connect_to(remote_id, password);
             }
 
+            if(command_execution.equals("remote_controled")) {
+                  client_actions.closeControledId();
+                  setButtonConnectionAction(new Object[]{"connect_to"});
+                  return true;
+            }
+
             this.setActionCommand("connect_to");
             return true;
       }
@@ -38,14 +44,14 @@ public class ButtonConnect extends Button
             boolean is_valid_form = client_actions.connect_to(remote_id, password);
 
             if(is_valid_form) {
-                  this.setActionCommand("cancel_connection");
-                  this.setBackground(Constants.Colors.bittersweet);
-                  buttonDisplayConnecting();
+                  setButtonConnectionAction(new Object[]{
+                        "cancel_connection",
+                  });
             }
             return is_valid_form;
       }
 
-      private void buttonDisplayConnecting() {
+      private void startCountDownConfirm() {
             SwingWorker<Object, Object> worker = new SwingWorker<>() {
                   @Override
                    public Object doInBackground() {
@@ -63,16 +69,35 @@ public class ButtonConnect extends Button
                                           seconds_response_wait));
                               seconds_response_wait--;
                         }
-                        restoreButtonConnect();
+                        setButtonConnectionAction(new Object[]{"connect_to"});
                         return null;
                    }
             };
             worker.execute();
       }
 
-      public void restoreButtonConnect() {
-            this.setActionCommand("connect_to");
-            this.setBackground(Constants.Colors.white);
-            this.setText(language.translate("Connect"));
+      public void setButtonConnectionAction(Object[] params) {
+            String command = params[0].toString();
+            
+            if(command.equals("connect_to")) {
+                  this.setActionCommand("connect_to");
+                  this.setBackground(Constants.Colors.white);
+                  this.setText(language.translate("Connect"));
+            }
+
+            if(command.equals("cancel_connection")) {
+                  this.setActionCommand("cancel_connection");
+                  this.setBackground(Constants.Colors.bittersweet);
+                  startCountDownConfirm();
+            }
+
+            if(command.equals("remote_controled")) {
+                  String controled_id = params[1].toString();
+
+                  this.setActionCommand("remote_controled");
+                  this.setBackground(Constants.Colors.bittersweet);
+                  this.setText(String.format(language.translate(
+                        "Close [%s] control"), controled_id));
+            }
       }
 }

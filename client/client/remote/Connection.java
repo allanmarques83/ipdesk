@@ -12,6 +12,7 @@ import javax.swing.event.ListDataListener;
 import javax.swing.event.ListDataEvent;
 
 import org.json.JSONObject;
+import org.json.JSONArray;
 
 import client.configuration.Config;
 import client.language.Language;
@@ -31,12 +32,15 @@ public class Connection
     private ServerActions server_actions;
     private ClientActions client_actions;
 
-	private String CLIENT_ID;
+	private String CLIENT_ID, CONTROLED_ID;
+    private JSONArray REMOTE_IDS;
     private DefaultListModel<TrafficModel> TRAFFIC_QUEUE;
 
 	public Connection(Config config, Language language) {
 		this.config = config;
 		this.language = language;
+
+        REMOTE_IDS = new JSONArray();
 	}
 
 	public void setActions(ServerActions server_actions,
@@ -115,7 +119,7 @@ public class Connection
                 }
                 catch(Exception exception) {
                 	// exception.printStackTrace();
-                	server_actions.closeServerSocket();
+                	closeSocket();
                 	establish("Try to establish connection in: [%ds]", 30);
                 }
             }
@@ -216,18 +220,40 @@ public class Connection
 			null);
 	}
 
-	public void setClientId(String remote_client_id) {
-		CLIENT_ID = remote_client_id;
+	public void setControledId(String remote_controled_id) {
+		CONTROLED_ID = remote_controled_id;
 	}
 
-	public String getClientId() {
-		return CLIENT_ID;
+	public String getControledId() {
+		return CONTROLED_ID;
 	}
+
+    public void setClientId(String remote_client_id) {
+        CLIENT_ID = remote_client_id;
+    }
+
+    public String getClientId() {
+        return CLIENT_ID;
+    }
+
+    public JSONArray getRemoteIds() {
+        return REMOTE_IDS;
+    }
+
+    public void addRemoteId(String remote_id) {
+        REMOTE_IDS.put(remote_id);
+    }
+
+    public void removeRemoteId(int index) {
+        REMOTE_IDS.remove(index);
+    }
 
     public void closeSocket() {
         try 
         {
             this.socket.close();
+            server_actions.getAction("setEnabledButtonConnect")
+                .accept(new Object[]{false});
 
         } catch (Exception exception) {
             exception.printStackTrace();

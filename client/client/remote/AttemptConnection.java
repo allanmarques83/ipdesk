@@ -14,11 +14,13 @@ public class AttemptConnection
 
 	public AttemptConnection(Config config) {
 		this.config = config;
-
 		this.language = new Language(config.getLanguage());
 	}
 
-	public boolean isValid(String sender_id, String password) {
+	public boolean isValid(String controled_id, String sender_id, String password) {
+
+		if(controled_id != null) 
+			return false;
 
 		if(!password.equals(config.getPassword()))
 			return false;

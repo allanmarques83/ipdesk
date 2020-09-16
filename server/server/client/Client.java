@@ -2,6 +2,8 @@ package server.client;
 
 import java.io.*;
 import java.net.*;
+import java.util.*;
+import java.util.stream.Collectors;
 import org.json.JSONObject;
 
 import javax.swing.DefaultListModel;
@@ -20,6 +22,7 @@ public class Client {
     private int PORT;
     private int MAX_BYTES_SEND = Constants.MAX_BYTES_SEND;
     private double SYSTEM_VERSION;
+    private Map<Date, String> LOG_ACTIONS;
 
     private DefaultListModel<TrafficModel> TRAFFIC_QUEUE;
 
@@ -30,6 +33,7 @@ public class Client {
         socket = cli_socket;
 
         TRAFFIC_QUEUE = new DefaultListModel<TrafficModel>();
+        LOG_ACTIONS = new HashMap<>();
 
         socket.setSoTimeout(0);
         socket.setKeepAlive(true);
@@ -84,12 +88,16 @@ public class Client {
         PORT = port;
     }
     
-    private void setID(String MAC){
+    private void setID(String MAC) {
+
+        Random r = new Random();
+        int n = r.nextInt((99999 - 10000) + 1) + 10000;
+        ID = ((n < 0) ? "-" : "") + String.format("%05d", Math.abs(n));
         
-        String ident = String.format("%05d", MAC.hashCode()%100000);
-        int i = Integer.parseInt(ident);
+  //       String ident = String.format("%05d", MAC.hashCode()%100000);
+  //       int i = Integer.parseInt(ident);
         
-		ID = ((i < 0) ? "-" : "") + String.format("%05d", Math.abs(i));
+		// ID = ((i < 0) ? "-" : "") + String.format("%05d", Math.abs(i));
     }
     
     private void addQueueListener() {
@@ -136,15 +144,18 @@ public class Client {
         }
     }
 
-    public void sendTraffic(JSONObject message,byte[] screen,byte[] file,
-        byte[] speaker) 
-    {
-        TRAFFIC_QUEUE.addElement(
-            new TrafficModel()
-            .setMessage(message.toString().getBytes())
-            .setImage(screen)
-            .setFile(file)
-            .setSpeaker(speaker));
+    public TrafficModel sendTraffic(byte[] message, byte[] screen, byte[] file,
+        byte[] speaker) {
+
+        TrafficModel traffic = new TrafficModel()
+            .setMessage(message)
+                .setImage(screen)
+                    .setFile(file)
+                        .setSpeaker(speaker);
+
+        TRAFFIC_QUEUE.addElement(traffic);
+
+        return traffic;
     }
 
     public void writeOnSocket(TrafficModel traffic) {
@@ -167,10 +178,34 @@ public class Client {
                 .put("action", "successfulServerEntry")
                 .put("client_id", getID())
                 .put("limit_bytes_send", MAX_BYTES_SEND)
-                .put("server_version", Constants.SERVER_VERSION),
+                .put("server_version", Constants.SERVER_VERSION)
+                .toString().getBytes(),
             null,
             null,
             null
         );
+    }
+
+    public Map<Date, String> getLogActions() {
+        return LOG_ACTIONS;
+    }
+
+    public void setLogAction(String action) {
+        LOG_ACTIONS.put(new Date(), action);
+    }
+
+    public void cleanLogClientByTime(Date date) {
+        LOG_ACTIONS = LOG_ACTIONS.entrySet()
+            .stream()
+                .filter(map -> map.getKey().after(date))
+                    .collect(Collectors.toMap(
+                    Map.Entry::getKey, Map.Entry::getValue));
+    }
+
+    public List<String> getLogActionList(String action) {
+        return LOG_ACTIONS.values()
+                .stream()
+                    .filter(key -> key.equals(action))
+                        .collect(Collectors.toList());
     }
 }

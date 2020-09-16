@@ -31,7 +31,7 @@ public class SavedRemoteIds extends Table
 
 		this
 			.defModel(getTableModel())
-			.setDefaultRenderer(getRenderTable())
+			.defDefaultRenderer(getRenderTable())
             .setHeaderColor(Constants.Colors.mercury)
             .defBackground(Constants.Colors.mercury)
             .defRowHeight(20)
@@ -47,7 +47,6 @@ public class SavedRemoteIds extends Table
                 JScrollPane.HORIZONTAL_SCROLLBAR_NEVER)
             .setScrollSize(300,120);
 
-        this.addRow(new Object[]{"","","","",""});
 	}
 
 	private DefaultTableModel getTableModel() {

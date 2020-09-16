@@ -3,6 +3,7 @@ package server.resources;
 import java.net.*;
 import java.io.*;
 import java.util.Arrays;
+import java.util.Date;
 
 import server.Main;
 import traffic_model.TrafficModel;
@@ -87,5 +88,21 @@ public class Utils
             exception.printStackTrace();
             // close(socket);
         }
+    }
+
+    public static void loopDelay(int seconds) {
+        try {
+            Thread.sleep((seconds*1000));
+        }
+        catch(Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public static Date getPastDate(Date date, int minutes_past) {
+        long minutes = minutes_past * 60L * 1000L;
+        long timeDate = date.getTime() - minutes;
+
+        return new Date(timeDate);
     }
 }

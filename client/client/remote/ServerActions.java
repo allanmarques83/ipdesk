@@ -48,8 +48,8 @@ public class ServerActions
 		this.data.put(data_name, data);
 	}
 
-	public Supplier<Object[]> getData(String data_name) {
-		return data.get(data_name);
+	public Object[] getData(String data_name) {
+		return data.get(data_name).get();
 	}
 
 	public void successfulServerEntry(TrafficModel traffic) {
@@ -82,33 +82,43 @@ public class ServerActions
 		String password = message.getString("password");
 		String sender_id = message.getString("sender_id");
 
-		JSONObject message_response = new JSONObject()
+		boolean is_valid_connection = new AttemptConnection(config)
+			.isValid(connection.getControledId(), sender_id, password);
+
+		if(is_valid_connection) {
+			getAction("setButtonConnectionAction").accept(
+				new Object[]{"remote_controled", sender_id});
+
+			connection.setControledId(sender_id);
+		}
+
+		return connection.sendTraffic(new JSONObject()
 			.put("destination_id", sender_id)
+			.put("sender_id", connection.getClientId())
 				.put("action","responseAttemptConnection")
-					.put("response", false);
-
-		boolean is_valid = new AttemptConnection(config)
-			.isValid(sender_id, password);
-
-		return connection.sendTraffic(message_response
-			.put("response", is_valid)
-				.toString()
-					.getBytes(), null, null, null);
+					.put("response", is_valid_connection)
+						.toString()
+							.getBytes(), null, null, null);
 	}
 
 	public boolean responseAttemptConnection(TrafficModel traffic) {
 		JSONObject message = new JSONObject(new String(traffic.getMessage()));
 
-		String button_status_action = getData("isWaitingForResponse").get()[0].toString();
+		String button_status_action = getData("getButtonConnectAcion")[0]
+			.toString();
 
 		if(button_status_action.equals("cancel_connection")) {
 			boolean response = message.getBoolean("response");
 
-			getAction("restoreButtonConnect").accept(null);
+			getAction("setButtonConnectionAction").accept(new Object[]{"connect_to"});
 
 			if(!response) {
 				return Utils.Error(language.translate("Invalid remote ID!"));
 			}
+
+			getAction("addRemoteIdConnection").accept(new Object[]{
+				message.getString("sender_id")});
+			connection.addRemoteId(message.getString("sender_id"));
 
 			return response;
 		}
@@ -116,8 +126,27 @@ public class ServerActions
 		return false;
 	}
 
-	public void closeServerSocket() {
-		this.connection.closeSocket();
-		actions.get("setEnabledButtonConnect").accept(new Object[]{false});
+	public boolean closeRemoteIdControled(TrafficModel traffic) {
+		JSONObject message = new JSONObject(new String(traffic.getMessage()));
+		
+		String sender_id = message.getString("sender_id");
+		List<Object> remote_ids = connection.getRemoteIds().toList();
+
+		if(remote_ids.contains(sender_id)) {
+			getAction("removeRemoteIdConnection").accept(new Object[]{sender_id});
+			connection.removeRemoteId(remote_ids.indexOf(sender_id));
+		}
+
+		return true;
+	}
+
+	public void closeRemoteIdConnection(TrafficModel traffic) {
+		JSONObject message = new JSONObject(new String(traffic.getMessage()));
+		String sender_id = message.getString("sender_id");
+
+		if(connection.getControledId().equals(sender_id)) {
+			getAction("setButtonConnectionAction").accept(new Object[]{"connect_to"});
+			connection.setControledId(null);
+		}
 	}
 }

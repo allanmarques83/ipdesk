@@ -78,7 +78,8 @@ public class Stage extends Frame
             .grid(0,3)
             .weight(1,0)
             .anchor(GridBagConstraints.NORTH)
-            .attach(new RemoteAccessTabbet(language).getPanel(), "tabbet_remote_access");
+            .attach(new RemoteAccessTabbet(language, server_actions, 
+                client_actions).getPanel(), "tabbet_remote_access");
 
         stage_panel
             .fill(GridBagConstraints.HORIZONTAL)

@@ -27,18 +27,40 @@ public class ClientActions
 			return Utils.Error(language.translate("Invalid password!"));
 		}
 
-		// if(remote_id.equals(connection.getClientId())) {
-		// 	return Utils.Error(language.translate("Self connection error!"));
-		// }
+		if(remote_id.equals(connection.getClientId())) {
+			return Utils.Error(language.translate("Self connection error!"));
+		}
 
 		this.connection.sendTraffic(
 			new JSONObject()
 				.put("action", "setRemoteConnection")
-				.put("destination_id", remote_id)
-				.put("password", password)
-				.put("sender_id", connection.getClientId()).toString().getBytes(),
-				null, null, null);
+					.put("sender_id", connection.getClientId())
+						.put("destination_id", remote_id)
+							.put("password", password).toString().getBytes(),
+								null, null, null);
 
 		return true;
+	}
+
+	public void closeControledId() {
+		this.connection.sendTraffic(
+			new JSONObject()
+				.put("action", "closeRemoteIdControled")
+					.put("sender_id", connection.getClientId())
+						.put("destination_id", connection.getControledId())
+							.toString().getBytes(),
+								null, null, null);
+
+		connection.setControledId(null);
+	}
+
+	public void closeRemoteIdConnection(Object[] params) {
+		this.connection.sendTraffic(
+			new JSONObject()
+				.put("action", "closeRemoteIdConnection")
+					.put("sender_id", connection.getClientId())
+						.put("destination_id", params[0].toString())
+							.toString().getBytes(),
+								null, null, null);
 	}
 }

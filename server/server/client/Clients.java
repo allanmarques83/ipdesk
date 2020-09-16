@@ -12,6 +12,7 @@ import org.json.JSONObject;
 import server.resources.Constants;
 import server.resources.Utils;
 import server.exceptions.ClientValidationException;
+import server.watch.TrafficQueue;
 
 import traffic_model.TrafficModel;
 
@@ -19,7 +20,8 @@ public class Clients {
 
     private ObservableMap<String, Client> connections;
 
-    ClientValidation client_validation;
+    private ClientValidation client_validation;
+    private TrafficQueue traffic_queue;
 
     int LIMIT_BYTES_RECIEVE = Constants.LIMIT_BYTES_RECIEVE;
 
@@ -30,6 +32,7 @@ public class Clients {
             connections = FXCollections.observableHashMap();
             
             client_validation = new ClientValidation(connections);
+            traffic_queue = new TrafficQueue(connections);
 
             addConnectionsListener();
         }
@@ -101,16 +104,21 @@ public class Clients {
 
                         baos.reset();
 
-                        boolean has_valid_destination = processTraffic(client, traffic);
+                        String traffic_action = processTraffic(traffic);
                         
-                        if(!has_valid_destination) {
-                            client.sendTraffic(new JSONObject()
-                                .put("action", "showMessageError")
-                                .put("error", "Invalid remote ID!"),
-                                null,
-                                null,
-                                null);
+                        if(traffic_action == null) {
+                            traffic = client.sendTraffic(new JSONObject()
+                                .put("action", "responseAttemptConnection")
+                                    .put("response", false).toString().getBytes(),
+                                        null, null, null);
+
+                            traffic_action = "responseAttemptConnection";
                         }
+
+                        traffic_queue.add(new Object[]{
+                            client.getID(), 
+                                traffic_action, 
+                                    traffic});
                     }
                 }
                 catch(Exception exception) {
@@ -147,7 +155,7 @@ public class Clients {
         return Utils.toTrafficModel(baos.toByteArray());
     }
 
-    private boolean processTraffic(Client client_sender, TrafficModel traffic) {
+    private String processTraffic(TrafficModel traffic) throws Exception {
         
         JSONObject message = new JSONObject(new String(traffic.getMessage()));
         System.out.println(message.getString("action"));
@@ -157,8 +165,8 @@ public class Clients {
             Client client_destination = connections.get(destination_id);
 
             client_destination.writeOnSocket(traffic);
-            return true;
+            return message.getString("action");
         }
-        return false;
+        return null;
     }
 }

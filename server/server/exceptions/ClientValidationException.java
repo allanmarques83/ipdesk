@@ -10,7 +10,7 @@ public class ClientValidationException extends Exception
 
 		client.sendTraffic(new JSONObject()
             .put("action", "showMessageError")
-                .put("error", message),
+                .put("error", message).toString().getBytes(),
                     null,
                         null,
                             null);

@@ -1,4 +1,4 @@
-package server.main;
+package server;
 
 import java.io.*;
 import java.net.*;
@@ -9,16 +9,14 @@ import server.resources.Utils;
 
 import server.client.Clients;
 
-public class Server
+public class Main 
 {
-    ServerSocket server_socket;
-
+	ServerSocket server_socket;
     Clients clients;
 
-    public Server(final boolean is_server_on) {
-        
-        try 
-        {
+	public Main(boolean is_server_on) {
+		
+		try {
             clients = new Clients();
             
             String server_ip = Utils.getServerIp();
@@ -40,9 +38,18 @@ public class Server
                 // }
             }
 
-        } catch (final Exception ex) 
-        {
+        } 
+        catch (final Exception ex) {
             ex.printStackTrace();
         }
+	}
+
+    public static void main(String[] args) {
+        boolean is_server_on = false;
+
+		if(args.length > 0) {
+			is_server_on = Boolean.valueOf(args[0]);
+        }
+        new Main(is_server_on);
     }
 }
