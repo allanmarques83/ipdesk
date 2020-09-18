@@ -7,6 +7,7 @@ import java.awt.Color;
 import java.util.function.Consumer;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.List;
 import javax.swing.DefaultListModel;
 import javax.swing.event.ListDataListener;
 import javax.swing.event.ListDataEvent;
@@ -35,6 +36,7 @@ public class Connection
 	private String CLIENT_ID, CONTROLED_ID;
     private JSONArray REMOTE_IDS;
     private DefaultListModel<TrafficModel> TRAFFIC_QUEUE;
+
 
 	public Connection(Config config, Language language) {
 		this.config = config;
@@ -120,7 +122,7 @@ public class Connection
                 catch(Exception exception) {
                 	// exception.printStackTrace();
                 	closeSocket();
-                	establish("Try to establish connection in: [%ds]", 30);
+                    serverDownAction();
                 }
             }
         };
@@ -260,4 +262,19 @@ public class Connection
         }
     }
 
+    private void serverDownAction() {
+        List<Object> remote_ids = getRemoteIds().toList();
+
+        for(Object remote_id : remote_ids) {
+            server_actions.getAction("removeRemoteIdConnection").accept(
+                new Object[]{(String)remote_id});
+            removeRemoteId(remote_ids.indexOf((String)remote_id));
+        }
+        server_actions.getAction("setButtonConnectionAction").accept(
+            new Object[]{"connect_to"});
+        setControledId(null);
+
+        establish("Try to establish connection in: [%ds]", 30);
+
+    }
 }

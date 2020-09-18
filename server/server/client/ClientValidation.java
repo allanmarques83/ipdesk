@@ -2,28 +2,32 @@ package server.client;
 
 import java.net.*;
 import java.io.*;
-import java.util.Iterator;
+import javax.json.*;
+import java.util.Map;
+import java.util.Date;
+import java.util.stream.Collectors;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import javafx.collections.ObservableMap;
-
-import org.json.JSONArray;
+import java.sql.Timestamp;
 
 import server.resources.Utils;
 import server.exceptions.ClientValidationException;
 
 public class ClientValidation {
     
-    JSONArray black_list;
+    JsonObject black_list;
 
     ObservableMap<String, Client> connections;
 
     public ClientValidation(ObservableMap<String, Client> connections) throws Exception {
         this.connections = connections;
-        black_list = new JSONArray(Utils.getFileContent("BlackList.conf"));
     }
 
     public void process(Client client) throws ClientValidationException {
+
+        ClientValidation.refreshBlackList(
+            Utils.getPastDate(new Date(), 15));
 
         if(!isMac(client.getMac())) {
             throw new ClientValidationException("Invalid MAC address", client, false);
@@ -34,7 +38,7 @@ public class ClientValidation {
         }
         
         if(isMacBanish(client.getMac())) {
-            throw new ClientValidationException("MAC was banish from this server", client, true);
+            throw new ClientValidationException("MAC was banish from this server", client, false);
         }
 
         if(containsId(client.getID())) {
@@ -42,9 +46,7 @@ public class ClientValidation {
         }
     }
 
-
     private boolean isMac(String mac) {
-        System.out.println(mac);
 		Pattern p = Pattern.compile("^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$");
 		Matcher m = p.matcher(mac);
 		
@@ -63,10 +65,64 @@ public class ClientValidation {
 	}
 
     private boolean isMacBanish(String mac) {
-        return black_list.toList().contains(mac);
+        return ClientValidation.getBlackList().containsKey(mac);
     }
 
     private boolean containsId(String id) {
         return connections.containsKey(id);
+    }
+
+    public static JsonObject getBlackList() {
+        try {
+            String black_file = Utils.getFileContent("BlackList.conf", "{}");
+            JsonReader reader = Json.createReader(new StringReader(black_file));
+            JsonObject black_list = reader.readObject();
+            reader.close();
+            return black_list;
+        }
+        catch(Exception exception) {
+            exception.printStackTrace();
+            return null;
+        }
+    }
+
+    public static void addBlackList(String mac) {
+        JsonObject black_list = ClientValidation.getBlackList();
+        Timestamp now = new Timestamp(System.currentTimeMillis());
+
+        JsonObjectBuilder builder = Json.createObjectBuilder();
+        builder.add(mac, now.toString());
+
+        black_list.entrySet().
+                forEach(e -> builder.add(e.getKey(), e.getValue()));
+        
+        black_list = builder.build();
+
+        Utils.saveFile("BlackList.conf", black_list.toString());
+    }
+
+    public static boolean refreshBlackList(Date minutes) {
+        JsonObject black_list = ClientValidation.getBlackList();
+        Timestamp minutes_ago = new Timestamp(minutes.getTime());
+
+        Map<String, JsonValue> filter_map = black_list.entrySet()
+            .stream()
+                .filter(map -> Timestamp.valueOf(
+                    map.getValue().toString().replaceAll("\"", ""))
+                        .after(minutes_ago))
+                .collect(Collectors.toMap(
+                Map.Entry::getKey, Map.Entry::getValue));
+
+        if(filter_map.size() == black_list.size())
+            return false;
+
+        JsonObjectBuilder builder = Json.createObjectBuilder();
+
+        filter_map.entrySet().
+                forEach(e -> builder.add(e.getKey(), e.getValue()));
+
+        black_list = builder.build();
+
+        return Utils.saveFile("BlackList.conf", black_list.toString());
     }
 }

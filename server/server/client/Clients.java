@@ -12,7 +12,7 @@ import org.json.JSONObject;
 import server.resources.Constants;
 import server.resources.Utils;
 import server.exceptions.ClientValidationException;
-import server.watch.TrafficQueue;
+import server.watch.TrafficWatch;
 
 import traffic_model.TrafficModel;
 
@@ -21,7 +21,7 @@ public class Clients {
     private ObservableMap<String, Client> connections;
 
     private ClientValidation client_validation;
-    private TrafficQueue traffic_queue;
+    private TrafficWatch traffic_watch;
 
     int LIMIT_BYTES_RECIEVE = Constants.LIMIT_BYTES_RECIEVE;
 
@@ -32,9 +32,9 @@ public class Clients {
             connections = FXCollections.observableHashMap();
             
             client_validation = new ClientValidation(connections);
-            traffic_queue = new TrafficQueue(connections);
+            traffic_watch = new TrafficWatch(connections);
 
-            addConnectionsListener();
+            removeConnectionsListener();
         }
         catch (Exception exception)
 		{
@@ -95,7 +95,7 @@ public class Clients {
 
                     while(!client.getSocket().isClosed())
                     {
-                        TrafficModel traffic = getTraffic(stream, baos);
+                        TrafficModel traffic = buildTrafficModel(stream, baos);
                         
                         if(traffic == null && baos.size() <= LIMIT_BYTES_RECIEVE)
                             continue;
@@ -104,21 +104,22 @@ public class Clients {
 
                         baos.reset();
 
-                        String traffic_action = processTraffic(traffic);
+                        String action = processTraffic(traffic);
                         
-                        if(traffic_action == null) {
+                        if(action == null) {
                             traffic = client.sendTraffic(new JSONObject()
                                 .put("action", "responseAttemptConnection")
-                                    .put("response", false).toString().getBytes(),
-                                        null, null, null);
+                                    .put("destination_id", client.getID())
+                                        .put("response", false).toString().getBytes(),
+                                            null, null, null);
 
-                            traffic_action = "responseAttemptConnection";
+                            action = "responseAttemptConnection";
                         }
 
-                        traffic_queue.add(new Object[]{
-                            client.getID(), 
-                                traffic_action, 
-                                    traffic});
+                        traffic_watch.addTraffic(new Object[]{
+                            traffic,
+                                action,
+                                    client.getID()});
                     }
                 }
                 catch(Exception exception) {
@@ -130,20 +131,21 @@ public class Clients {
         thread.start();
     }
 
-    public void addConnectionsListener() {
+    public void removeConnectionsListener() {
         
         connections.addListener(
             (MapChangeListener<String, Client>) CHANGE -> 
             {
                 if(CHANGE.wasRemoved()) {
                     Client client = (Client)CHANGE.getValueRemoved();
+                    traffic_watch.client_exit(client);
                     client.closeSocket();
                 }
             }
         );
     }
 
-    private TrafficModel getTraffic(BufferedInputStream stream, 
+    private TrafficModel buildTrafficModel(BufferedInputStream stream, 
         ByteArrayOutputStream baos) throws Exception {
             
         byte[] buffer_stream = new byte[20480];
@@ -158,7 +160,6 @@ public class Clients {
     private String processTraffic(TrafficModel traffic) throws Exception {
         
         JSONObject message = new JSONObject(new String(traffic.getMessage()));
-        System.out.println(message.getString("action"));
         String destination_id = message.getString("destination_id");
 
         if(connections.containsKey(destination_id)) {

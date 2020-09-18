@@ -152,7 +152,6 @@ public class ActiveRemoteAccessTable extends Table
         Vector<Vector> vectors = this.getDataVector();
 
         for(Vector vector : vectors) {
-
             vector.remove((String)params[0]);
         }
         this.setDataVector(vectors, true);

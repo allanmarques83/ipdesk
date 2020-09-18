@@ -1,10 +1,8 @@
 todo:
-- somente enviar "invalid remote id" se a action for setRemoteConnection.
 - WatchTraffic deve apenas verificar:
-	se a action for setRemoteConnection, se é valido o destino. Criar Log: (max de 5 procuras x 15 min)
-	se action for responseAttemptConnection, se é inválida a senha. 
-		Criar Log (max de 5 tentative x 15 min)
-	criar log de mac time banish (15 min) desconectado. 
+	
+	gravar no log do client a action setRemoteConection. Quando houver um responseAttemptConnection,
+	verificar no log do client a tentativa de conexão
 
 - WatchTraffic deve manter o controle das sessões de conexões:
 	Quando houver um responseAttemptConnection com response true, adicionar na session.

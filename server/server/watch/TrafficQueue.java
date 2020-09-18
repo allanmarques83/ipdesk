@@ -1,6 +1,6 @@
 package server.watch;
 
-import javafx.collections.ObservableMap;
+import java.util.function.Consumer;
 import java.util.Vector;
 
 import server.resources.Utils;
@@ -10,24 +10,18 @@ import server.client.Client;
 
 public class TrafficQueue
 {
-    private ObservableMap<String, Client> connections;
-    private ObservableMap<String, String> sessions;
-
     private Vector<Object[]> TRAFFIC_QUEUE;
+    private Consumer<Object[]> process_traffic;
 
-    private TrafficWatch traffic_watch;
-
-	public TrafficQueue(ObservableMap<String, Client> connections) {
-		this.connections = connections;
-
-		traffic_watch = new TrafficWatch(connections);
+	public TrafficQueue(Consumer<Object[]> process_traffic) {
+		this.process_traffic = process_traffic;
 
         TRAFFIC_QUEUE = new Vector<Object[]>();
 
-        this.process_queue();
+        this.thread_queue();
 	}
 
-	public void process_queue() {
+	public void thread_queue() {
 		Thread thread = new Thread()
 		{
 			public void run() 
@@ -39,12 +33,14 @@ public class TrafficQueue
 							Utils.loopDelay(1);
 							continue;
 						}
-						traffic_watch.process(TRAFFIC_QUEUE.get(0));
+						process_traffic.accept(TRAFFIC_QUEUE.get(0));
 						TRAFFIC_QUEUE.remove(0);
 					}
                 }
                 catch (Exception exception) {
-
+                	exception.printStackTrace();
+					TRAFFIC_QUEUE.remove(0);
+                	thread_queue();
                 }
             }
         };
