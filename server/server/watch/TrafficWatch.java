@@ -111,13 +111,14 @@ public class TrafficWatch
 	}
 
 	public void client_exit(Client client) {
+		System.out.println(client.getID());
 		if(sessions.containsKey(client.getID())) {
 			Client client_destination = connections.get(sessions.get(client.getID()));
 			
 			client_destination.sendTraffic(new JSONObject()
                                 .put("action", "closeRemoteIdControled")
                                     .put("sender_id", client.getID()).toString().getBytes(),
-                                        null, null, null);
+                                        null);
 			
 			sessions.remove(client.getID());
 		}
@@ -137,7 +138,7 @@ public class TrafficWatch
 		client_destination.sendTraffic(new JSONObject()
             .put("action", "closeRemoteIdConnection")
                 .put("sender_id", client_id).toString().getBytes(),
-                    null, null, null);
+                    null);
 
 		return true;
 	}

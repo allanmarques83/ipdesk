@@ -26,13 +26,11 @@ public class Utils
 		{
 			ByteArrayInputStream in = new ByteArrayInputStream(data);
 			ObjectInputStream is = new ObjectInputStream(in);
-			traffic = (TrafficModel)is.readObject();
+			traffic = (TrafficModel)is.readUnshared();
             
             return traffic;
 		}
-		catch(Exception ex2)
-		{
-			ex2.printStackTrace();
+		catch(Exception ex2) {
 			return null;
 		}
 	}

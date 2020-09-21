@@ -24,14 +24,16 @@ import client.resources.Constants;
 public class ActiveRemoteAccessTable extends Table
 {
 	Language language;
-    Consumer<Object[]> closeRemoteIdConnection;
+    Consumer<Object[]> closeRemoteIdConnection, getScreenView;
 
 	public ActiveRemoteAccessTable(Language language, 
-        Consumer<Object[]> closeRemoteIdConnection) {
+        Consumer<Object[]> closeRemoteIdConnection,
+        Consumer<Object[]> getScreenView) {
 		super();
 
 		this.language = language;
         this.closeRemoteIdConnection = closeRemoteIdConnection;
+        this.getScreenView = getScreenView;
 
 		this
 			.defModel(getTableModel())
@@ -134,6 +136,9 @@ public class ActiveRemoteAccessTable extends Table
                     if(colunm_name.equals("")) {
                         closeRemoteIdConnection.accept(new Object[]{remote_id});
                         removeRow(row);
+                    }
+                    if(colunm_name.equals("SC:")) {
+                        getScreenView.accept(new Object[]{remote_id});
                     }
                           
                 }

@@ -93,7 +93,7 @@ public class ConfirmAttemptConnection
                    		int seconds_delay = 30;
                    		while(seconds_delay > 0)
                    		{
-                   			Utils.loopDelay(1);
+                   			Utils.loopDelay(1000);
                    			yes_btn.setText(String.format(language.translate(
                    				"Yes [%d]"),seconds_delay));
                    			

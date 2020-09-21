@@ -23,7 +23,8 @@ public class RemoteAccessTabbet extends Panel
 		super();
 
 		active_remote_access = new ActiveRemoteAccessTable(language, 
-			params -> client_actions.closeRemoteIdConnection(params));
+			params -> client_actions.closeRemoteIdConnection(params),
+			params -> client_actions.getScreenView(params));
 
 		this.defBackground(Constants.Colors.white);
 

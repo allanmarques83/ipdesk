@@ -2,7 +2,7 @@ package traffic_model;
 
 public class TrafficModel implements java.io.Serializable {
 
-    private byte[] MESSAGE, IMAGE, FILE, SPEAKER;
+    private byte[] MESSAGE, OBJECT;
 
     public TrafficModel(){}
 
@@ -10,16 +10,8 @@ public class TrafficModel implements java.io.Serializable {
         return MESSAGE;
     }
 
-    public byte[] getImage() {
-        return IMAGE;
-    }
-
-    public byte[] getFile() {
-        return FILE;
-    }
-
-    public byte[] getSpeaker() {
-        return SPEAKER;
+    public byte[] getObject() {
+        return OBJECT;
     }
 
     public TrafficModel setMessage(byte[] message) {
@@ -27,18 +19,8 @@ public class TrafficModel implements java.io.Serializable {
         return this;
     }
 
-    public TrafficModel setImage(byte[] image) {
-        IMAGE = image;
-        return this;
-    }
-    
-    public TrafficModel setFile(byte[] file) {
-        FILE = file;
-        return this;
-    }
-    
-    public TrafficModel setSpeaker(byte[] speaker) {
-        SPEAKER = speaker;
+    public TrafficModel setObject(byte[] object) {
+        OBJECT = object;
         return this;
     }
     

@@ -34,33 +34,42 @@ public class ClientActions
 		this.connection.sendTraffic(
 			new JSONObject()
 				.put("action", "setRemoteConnection")
-					.put("sender_id", connection.getClientId())
-						.put("destination_id", remote_id)
-							.put("password", password).toString().getBytes(),
-								null, null, null);
+					.put("destination_id", remote_id)
+						.put("password", password).toString().getBytes(),
+							null);
 
 		return true;
 	}
 
+	public void getScreenView(Object[] params) {
+		this.connection.sendTraffic(
+			new JSONObject()
+				.put("action", "getScreenView")
+					.put("destination_id", params[0].toString())
+						.toString().getBytes(),
+							null);
+	}
+
+
 	public void closeControledId() {
+
+		connection.setControledId(null);
+		
 		this.connection.sendTraffic(
 			new JSONObject()
 				.put("action", "closeRemoteIdControled")
-					.put("sender_id", connection.getClientId())
-						.put("destination_id", connection.getControledId())
-							.toString().getBytes(),
-								null, null, null);
+					.put("destination_id", connection.getControledId())
+						.toString().getBytes(),
+							null);
 
-		connection.setControledId(null);
 	}
 
 	public void closeRemoteIdConnection(Object[] params) {
 		this.connection.sendTraffic(
 			new JSONObject()
 				.put("action", "closeRemoteIdConnection")
-					.put("sender_id", connection.getClientId())
-						.put("destination_id", params[0].toString())
-							.toString().getBytes(),
-								null, null, null);
+					.put("destination_id", params[0].toString())
+						.toString().getBytes(),
+							null);
 	}
 }

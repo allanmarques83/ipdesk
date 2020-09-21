@@ -5,12 +5,8 @@ import java.net.*;
 import java.lang.reflect.Method;
 import java.awt.Color;
 import java.util.function.Consumer;
-import java.util.Map;
-import java.util.HashMap;
+import java.util.Vector;
 import java.util.List;
-import javax.swing.DefaultListModel;
-import javax.swing.event.ListDataListener;
-import javax.swing.event.ListDataEvent;
 
 import org.json.JSONObject;
 import org.json.JSONArray;
@@ -26,7 +22,7 @@ import traffic_model.TrafficModel;
 public class Connection
 {
 	private Socket socket;
-	private BufferedOutputStream buffer_stream;
+	private ObjectOutputStream buffer_stream;
 
 	private Config config;
 	private Language language;
@@ -35,7 +31,7 @@ public class Connection
 
 	private String CLIENT_ID, CONTROLED_ID;
     private JSONArray REMOTE_IDS;
-    private DefaultListModel<TrafficModel> TRAFFIC_QUEUE;
+    private Vector<TrafficModel> OUT_TRAFFIC_QUEUE;
 
 
 	public Connection(Config config, Language language) {
@@ -43,6 +39,7 @@ public class Connection
 		this.language = language;
 
         REMOTE_IDS = new JSONArray();
+        OUT_TRAFFIC_QUEUE = new Vector<>(1);
 	}
 
 	public void setActions(ServerActions server_actions,
@@ -71,13 +68,15 @@ public class Connection
 					int server_port = config.getServerPort();
 
 					setSocketConnection(new Socket(server_ip, server_port));
-					
+				    
+                    sendClientIdentification();
+                	
 					setServerListener();
 
-					sendClientIdentification();
-				}
+                    setOutTrafficQueue();
+                }
 				catch(Exception exception) {
-					// exception.printStackTrace();
+					exception.printStackTrace();
 					establish("Error to connect! Try to establish connection in: [%ds]", 30);
 				}
 			}
@@ -85,28 +84,33 @@ public class Connection
 		thread.start();
 	}
 
+    public void setSocketConnection(Socket client_socket) throws Exception
+    {
+        this.socket = client_socket;
+
+        this.socket.setKeepAlive(true);
+        this.socket.setTcpNoDelay(true);
+        this.socket.setTrafficClass(0x10);
+        this.socket.setSoTimeout(7000);
+        this.socket.setPerformancePreferences(0,1,1);
+        this.socket.setReceiveBufferSize(this.config.getMaxBytesSend());
+        this.socket.setSendBufferSize(this.config.getMaxBytesSend());
+
+        this.buffer_stream = new ObjectOutputStream(this.socket.getOutputStream());
+    }
+
 	private void setServerListener() {
 		Thread thread = new Thread()
 		{
 			public void run() 
             {
-				try 
-                {
-                    BufferedInputStream stream = new BufferedInputStream(
-                        socket.getInputStream(), config.getMaxBytesSend());
-
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+				try {
+                    ObjectInputStream stream = new ObjectInputStream(
+                        socket.getInputStream());
 
                     while(!socket.isClosed())
                     {
-                        TrafficModel traffic = getTraffic(stream, baos);
-                        
-                        if(traffic == null && baos.size() <= config.getMaxBytesRecieve())
-                            continue;
-                        if(traffic == null && baos.size() > config.getMaxBytesRecieve())
-                            throw new Exception("Traffic bytes exceeded!");
-        				
-        				baos.reset();
+                        TrafficModel traffic = getTrafficModel(stream);
 
                         JSONObject message = new JSONObject(
                         	new String(traffic.getMessage()));
@@ -129,74 +133,47 @@ public class Connection
         thread.start();
 	}
 
-	private TrafficModel getTraffic(BufferedInputStream stream, 
-        ByteArrayOutputStream baos) throws Exception {
-            
-        byte[] buffer_stream = new byte[config.getMaxBytesSend()];
-        
-        int bytesRead = stream.read(buffer_stream,0,config.getMaxBytesSend());
-         
-        baos.write(buffer_stream, 0, bytesRead);
-                        
-        return Utils.toTrafficModel(baos.toByteArray());
-    }
+	private TrafficModel getTrafficModel(ObjectInputStream stream) throws Exception {
 
-    public void setSocketConnection(Socket client_socket) throws Exception
-	{
-		this.socket = client_socket;
+        return (TrafficModel)stream.readUnshared();
+    }   
 
-		this.socket.setKeepAlive(true);
-		this.socket.setTcpNoDelay(true);
-		this.socket.setTrafficClass(0x10);
-		this.socket.setSoTimeout(7000);
-		this.socket.setPerformancePreferences(0,1,1);
-        this.socket.setReceiveBufferSize(this.config.getMaxBytesSend());
-        this.socket.setSendBufferSize(this.config.getMaxBytesSend());
-
-        this.buffer_stream = new BufferedOutputStream(this.socket.getOutputStream(),
-         	this.config.getMaxBytesSend());
-
-        TRAFFIC_QUEUE = new DefaultListModel<TrafficModel>();
-        
-        this.addQueueListener();
-	}
-
-	private void addQueueListener() {
-        TRAFFIC_QUEUE.addListDataListener(new ListDataListener()
+	private void setOutTrafficQueue() {
+        Thread thread = new Thread()
         {
-            public void intervalAdded(ListDataEvent e)
+            public void run() 
             {
-                writeOnSocket(TRAFFIC_QUEUE.get(0));
-                TRAFFIC_QUEUE.remove(0);
+                try {
+                    while(!socket.isClosed()) {
+
+                        if(OUT_TRAFFIC_QUEUE.isEmpty()) {
+                            Utils.loopDelay(1000);
+                            continue;
+                        }
+                        writeOnSocket(OUT_TRAFFIC_QUEUE.get(0));
+                        OUT_TRAFFIC_QUEUE.remove(0);
+                    }
+                }
+                catch (Exception exception) {
+                    closeSocket();
+                    serverDownAction();        
+                }
             }
-            public void contentsChanged(ListDataEvent e){}
-            public void intervalRemoved(ListDataEvent e){}
-        });
+        };
+        thread.start();
     }
 
-    private void writeOnSocket(TrafficModel traffic) {
-        try
-        {
-            byte[] buffer = Utils.toByteArray(traffic);
+    private void writeOnSocket(TrafficModel traffic) throws Exception {
 
-            this.buffer_stream.write(buffer,0,buffer.length);
-            this.buffer_stream.flush();
-        }
-        catch(Exception exception)
-        {
-            exception.printStackTrace();
-        }
+        this.buffer_stream.writeUnshared(traffic);
+        this.buffer_stream.flush();
     }
 
-    public boolean sendTraffic(byte[] message, byte[] screen, byte[] file, 
-    	byte[] speaker) 
+    public boolean sendTraffic(byte[] message, byte[] object) 
     {
-        TRAFFIC_QUEUE.addElement(
-            new TrafficModel()
-            	.setMessage(message)
-            	.setImage(screen)
-            	.setFile(file)
-            	.setSpeaker(speaker));
+        OUT_TRAFFIC_QUEUE.add(new TrafficModel()
+            .setMessage(message)
+            	.setObject(object));
 
         return true;
     }
@@ -217,8 +194,6 @@ public class Connection
 				.put("SYSTEM_LANGUAGE", config.getLanguage())
 					.toString()
 						.getBytes(),
-			null,
-			null,
 			null);
 	}
 

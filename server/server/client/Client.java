@@ -5,6 +5,7 @@ import java.net.*;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.json.JSONObject;
+import java.util.function.Consumer;
 
 import javax.swing.DefaultListModel;
 import javax.swing.event.ListDataListener;
@@ -26,25 +27,27 @@ public class Client {
 
     private DefaultListModel<TrafficModel> TRAFFIC_QUEUE;
 
-    private BufferedOutputStream OUTPUT_DATA;
+    private Consumer<String> remove_client;
 
-    public Client(final Socket cli_socket) throws Exception
-    {   
+    private ObjectOutputStream OUTPUT_DATA;
+
+    public Client(final Socket cli_socket, Consumer<String> remove_client) throws Exception
+    {  
+        this.remove_client = remove_client;
         socket = cli_socket;
 
         TRAFFIC_QUEUE = new DefaultListModel<TrafficModel>();
         LOG_ACTIONS = new HashMap<>();
 
-        socket.setSoTimeout(0);
+        socket.setSoTimeout(5000);
         socket.setKeepAlive(true);
         socket.setTcpNoDelay(true);
         socket.setTrafficClass(0x10);
         
         socket.setSendBufferSize(MAX_BYTES_SEND);
-        socket.setPerformancePreferences(0,1,1);
+        socket.setPerformancePreferences(1,0,1);
 
-        OUTPUT_DATA = new BufferedOutputStream(socket.getOutputStream(),
-            MAX_BYTES_SEND);
+        OUTPUT_DATA = new ObjectOutputStream(socket.getOutputStream());
     }
 
     public Client build(TrafficModel traffic) throws Exception {
@@ -105,8 +108,13 @@ public class Client {
         {
             public void intervalAdded(ListDataEvent e)
             {
-                writeOnSocket(TRAFFIC_QUEUE.get(0));
-                TRAFFIC_QUEUE.remove(0);
+                try {
+                    writeOnSocket(TRAFFIC_QUEUE.get(0));
+                    TRAFFIC_QUEUE.remove(0);
+                }
+                catch(Exception exception) {
+                    remove_client.accept(getID());
+                }
             }
             public void contentsChanged(ListDataEvent e){}
             public void intervalRemoved(ListDataEvent e){}
@@ -144,32 +152,19 @@ public class Client {
         }
     }
 
-    public TrafficModel sendTraffic(byte[] message, byte[] screen, byte[] file,
-        byte[] speaker) {
+    public TrafficModel sendTraffic(byte[] message, byte[] object) {
 
         TrafficModel traffic = new TrafficModel()
             .setMessage(message)
-                .setImage(screen)
-                    .setFile(file)
-                        .setSpeaker(speaker);
+                .setObject(object);
 
         TRAFFIC_QUEUE.addElement(traffic);
 
         return traffic;
     }
 
-    public void writeOnSocket(TrafficModel traffic) {
-        try
-        {
-            byte[] buffer = Utils.toByteArray(traffic);
-
-            OUTPUT_DATA.write(buffer,0,buffer.length);
-            OUTPUT_DATA.flush();
-        }
-        catch(Exception exception)
-        {
-            exception.printStackTrace();
-        }
+    public void writeOnSocket(TrafficModel traffic) throws Exception {
+        OUTPUT_DATA.writeUnshared(traffic);        
     }
 
     public void sendWelcomeMessage() {
@@ -180,8 +175,6 @@ public class Client {
                 .put("limit_bytes_send", MAX_BYTES_SEND)
                 .put("server_version", Constants.SERVER_VERSION)
                 .toString().getBytes(),
-            null,
-            null,
             null
         );
     }

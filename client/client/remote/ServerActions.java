@@ -11,18 +11,21 @@ import org.json.JSONObject;
 import org.json.JSONArray;
 
 import traffic_model.TrafficModel;
-import client.remote.Connection;
-import client.remote.AttemptConnection;
 import client.language.Language;
 import client.resources.Utils;
 import client.resources.Constants;
 import client.configuration.Config;
+import client.remote.AttemptConnection;
+import client.remote.Connection;
+import client.services.screen.ScreenView;
 
 public class ServerActions
 {
 	Config config;
 	Connection connection;
 	Language language;
+
+	ScreenView screen_view;
 
 	private Map<String, Consumer<Object[]>> actions;
 	private Map<String, Supplier<Object[]>> data;
@@ -34,6 +37,7 @@ public class ServerActions
 
 		this.actions = new HashMap<>();
 		this.data = new HashMap<>();
+		screen_view = new ScreenView(connection);
 	}
 
 	public void addAction(String action_name, Consumer<Object[]> action) {
@@ -98,7 +102,7 @@ public class ServerActions
 				.put("action","responseAttemptConnection")
 					.put("response", is_valid_connection)
 						.toString()
-							.getBytes(), null, null, null);
+							.getBytes(), null);
 	}
 
 	public boolean responseAttemptConnection(TrafficModel traffic) {
@@ -147,6 +151,26 @@ public class ServerActions
 		if(connection.getControledId().equals(sender_id)) {
 			getAction("setButtonConnectionAction").accept(new Object[]{"connect_to"});
 			connection.setControledId(null);
+		}
+	}
+
+	public void getScreenView(TrafficModel traffic) {
+		JSONObject message = new JSONObject(new String(traffic.getMessage()));
+
+		String sender_id = message.getString("sender_id");
+
+		if(sender_id.equals(connection.getControledId())) {
+			screen_view.startSendScreen();
+		}
+	}
+
+	public void setScreenView(TrafficModel traffic) {
+		JSONObject message = new JSONObject(new String(traffic.getMessage()));
+
+		String sender_id = message.getString("sender_id");
+
+		if(connection.getRemoteIds().toList().contains(sender_id)) {
+			System.out.println(traffic.getObject().length);
 		}
 	}
 }

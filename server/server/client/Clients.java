@@ -2,6 +2,8 @@ package server.client;
 
 import java.io.*;
 import java.net.Socket;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import javafx.collections.ObservableMap;
 import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
@@ -23,8 +25,6 @@ public class Clients {
     private ClientValidation client_validation;
     private TrafficWatch traffic_watch;
 
-    int LIMIT_BYTES_RECIEVE = Constants.LIMIT_BYTES_RECIEVE;
-
     public Clients() 
     {
         try
@@ -34,7 +34,7 @@ public class Clients {
             client_validation = new ClientValidation(connections);
             traffic_watch = new TrafficWatch(connections);
 
-            removeConnectionsListener();
+            addRemovedConnectionsListener();
         }
         catch (Exception exception)
 		{
@@ -53,14 +53,18 @@ public class Clients {
 				try
 				{
                     socket.setSoTimeout(7000);
-                    socket.setReceiveBufferSize(Constants.MAX_BYTES_SEND);  
-                    
-                    byte[] buffer_data = Utils.getBufferSocket(socket, 
-                        Constants.MAX_BYTES_SEND);
+                    socket.setReceiveBufferSize(Constants.MAX_BYTES_SEND);
 
-                    TrafficModel traffic = Utils.toTrafficModel(buffer_data);
+                    ObjectInputStream client_stream = new ObjectInputStream(
+                        socket.getInputStream());
+                    
+                    TrafficModel traffic = buildTrafficModel(client_stream, null);
+
+                    if(traffic == null)
+                        throw new Exception("null traffic!");
         
-                    client = new Client(socket).build(traffic);
+                    client = new Client(socket, client_id -> connections.remove(
+                        client_id)).build(traffic);
 
                     client_validation.process(client);
                     
@@ -68,7 +72,7 @@ public class Clients {
 
                     client.sendWelcomeMessage();
                     
-                    addClientListener(client);
+                    addClientListener(client_stream, client);
                 }
                 catch (Exception exception)
 				{
@@ -81,46 +85,24 @@ public class Clients {
         thread.start();
     }
 
-    public void addClientListener(Client client) {
+    public void addClientListener(ObjectInputStream client_stream, Client client) {
         Thread thread = new Thread()
 		{
 			public void run() 
             {
 				try 
                 {
-                    BufferedInputStream stream = new BufferedInputStream(
-                        client.getSocket().getInputStream(), 20480);
-
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
                     while(!client.getSocket().isClosed())
                     {
-                        TrafficModel traffic = buildTrafficModel(stream, baos);
-                        
-                        if(traffic == null && baos.size() <= LIMIT_BYTES_RECIEVE)
+                        TrafficModel traffic = buildTrafficModel(client_stream, client.getID());
+
+                        if(traffic == null) 
                             continue;
-                        if(traffic == null && baos.size() > LIMIT_BYTES_RECIEVE)
-                            throw new Exception("Traffic bytes exceeded!");
 
-                        baos.reset();
-
-                        String action = processTraffic(traffic);
-                        
-                        if(action == null) {
-                            traffic = client.sendTraffic(new JSONObject()
-                                .put("action", "responseAttemptConnection")
-                                    .put("destination_id", client.getID())
-                                        .put("response", false).toString().getBytes(),
-                                            null, null, null);
-
-                            action = "responseAttemptConnection";
-                        }
-
-                        traffic_watch.addTraffic(new Object[]{
-                            traffic,
-                                action,
-                                    client.getID()});
-                    }
+                        processTraffic(traffic, client);
+                    }                    
+                    if(connections.containsKey(client.getID()))
+                        connections.remove(client.getID());
                 }
                 catch(Exception exception) {
                     exception.printStackTrace();
@@ -131,7 +113,7 @@ public class Clients {
         thread.start();
     }
 
-    public void removeConnectionsListener() {
+    public void addRemovedConnectionsListener() {
         
         connections.addListener(
             (MapChangeListener<String, Client>) CHANGE -> 
@@ -145,29 +127,58 @@ public class Clients {
         );
     }
 
-    private TrafficModel buildTrafficModel(BufferedInputStream stream, 
-        ByteArrayOutputStream baos) throws Exception {
-            
-        byte[] buffer_stream = new byte[20480];
-        
-        int bytesRead = stream.read(buffer_stream,0,20480);
-         
-        baos.write(buffer_stream, 0, bytesRead);
-                        
-        return Utils.toTrafficModel(baos.toByteArray());
+    private TrafficModel buildTrafficModel(ObjectInputStream stream, String client_id) {
+        try {   
+            return (TrafficModel)stream.readUnshared();
+        }
+        catch (SocketTimeoutException exception) {
+            return null;
+        }
+        catch(Exception exception) {
+            exception.printStackTrace();
+            connections.remove(client_id);
+            return null;
+        }
     }
 
-    private String processTraffic(TrafficModel traffic) throws Exception {
+    private void processTraffic(TrafficModel traffic, Client client) {
         
         JSONObject message = new JSONObject(new String(traffic.getMessage()));
-        String destination_id = message.getString("destination_id");
+        message.put("sender_id", client.getID());
+        System.out.println(message.toString());
 
-        if(connections.containsKey(destination_id)) {
-            Client client_destination = connections.get(destination_id);
+        String destination_id = message.optString("destination_id", "");
+        String action = message.getString("action");
 
-            client_destination.writeOnSocket(traffic);
-            return message.getString("action");
+        traffic.setMessage(message.toString().getBytes());
+
+        try {
+
+            if(connections.containsKey(destination_id)) {
+                Client client_destination = connections.get(destination_id);
+                client_destination.writeOnSocket(traffic);
+            }
+            else
+                action = action.equals("setRemoteConnection") ? null : action;
         }
-        return null;
+        catch (Exception exception) {
+
+        }
+
+         if(action == null) {
+            traffic = client.sendTraffic(new JSONObject()
+                .put("action", "responseAttemptConnection")
+                    .put("destination_id", client.getID())
+                        .put("response", false).toString().getBytes(),
+                            null);
+
+            action = "responseAttemptConnection";
+        }
+
+        traffic_watch.addTraffic(new Object[]{
+            traffic,
+                action,
+                    client.getID()});
+
     }
 }

@@ -65,7 +65,7 @@ public class Utils {
         {
             ByteArrayInputStream in = new ByteArrayInputStream(data);
             ObjectInputStream is = new ObjectInputStream(in);
-            traffic = (TrafficModel)is.readObject();
+            traffic = (TrafficModel)is.readUnshared();
             
             return traffic;
         }
@@ -180,9 +180,9 @@ public class Utils {
         return false;
     }
 
-    public static void loopDelay(int seconds) {
+    public static void loopDelay(int milliseconds) {
         try {
-            Thread.sleep((seconds*1000));
+            Thread.sleep(milliseconds);
         }
         catch(Exception ex) {
             ex.printStackTrace();
