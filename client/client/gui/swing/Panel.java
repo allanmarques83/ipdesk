@@ -81,6 +81,11 @@ public class Panel extends JPanel
         return this;
     }
 
+    public Panel defOpaque(boolean opaque) {
+        this.setOpaque(opaque);
+        return this;
+    }
+
     public Panel attach(Component component, String name) {
     	components.put(name, component);
     	this.add(component, grid);

@@ -1,10 +1,10 @@
 package client.services.screen;
 
 import client.services.screen.Scalr;
+import client.resources.Utils;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.zip.Deflater;
 import java.io.ByteArrayOutputStream;
 import javax.imageio.ImageWriter;
 import javax.imageio.ImageIO;
@@ -47,30 +47,7 @@ public class ScreenGenerator
 			
 			image_writer.write(null,im,iamage_param);
 
-			return compress(out.toByteArray());
-		}
-		catch(Exception exception) {
-			return null;
-		}
-	}
-
-	private byte[] compress(byte[] image) {
-		try {
-			Deflater deflater = new Deflater();
-			deflater.setLevel(Deflater.BEST_COMPRESSION);
-			deflater.setInput(image); 
-			deflater.finish();  
-			
-			ByteArrayOutputStream outputStream = new ByteArrayOutputStream(image.length);
-			
-			byte[] buffer = new byte[1024];   
-
-			while (!deflater.finished())  {  
-				int count = deflater.deflate(buffer); // returns the generated code... index  
-				outputStream.write(buffer, 0, count);   
-			}  
-			outputStream.close();  
-			return outputStream.toByteArray();  	
+			return Utils.compressBytes(out.toByteArray());
 		}
 		catch(Exception exception) {
 			return null;

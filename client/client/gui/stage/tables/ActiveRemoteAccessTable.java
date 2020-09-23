@@ -1,4 +1,4 @@
-package client.gui.tables;
+package client.gui.stage.tables;
 
 import java.util.function.Consumer;
 import java.awt.GridBagConstraints;

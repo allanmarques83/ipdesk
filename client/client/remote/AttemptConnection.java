@@ -3,7 +3,7 @@ package client.remote;
 import client.configuration.Config;
 import traffic_model.TrafficModel;
 import client.language.Language;
-import client.gui.dialogs.ConfirmAttemptConnection;
+import client.gui.stage.dialogs.ConfirmAttemptConnection;
 
 import org.json.JSONObject;
 

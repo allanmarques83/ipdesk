@@ -1,4 +1,4 @@
-package client.gui.buttons;
+package client.gui.stage.buttons;
 
 import javax.swing.SwingWorker;
 
@@ -57,7 +57,7 @@ public class ButtonConnect extends Button
                    public Object doInBackground() {
                         int seconds_response_wait = 30;
                         while(seconds_response_wait > 0) {
-                              Utils.loopDelay(1);
+                              Utils.loopDelay(1000);
 
                               String command_execution = getActionCommand();
                               

@@ -1,4 +1,4 @@
-package client.gui.menu;
+package client.gui.stage.menu;
 
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;

@@ -1,4 +1,4 @@
-package client.gui.dialogs;
+package client.gui.stage.dialogs;
 
 import javax.swing.JOptionPane;
 import javax.swing.JDialog;

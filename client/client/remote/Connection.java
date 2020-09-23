@@ -92,7 +92,7 @@ public class Connection
         this.socket.setTcpNoDelay(true);
         this.socket.setTrafficClass(0x10);
         this.socket.setSoTimeout(7000);
-        this.socket.setPerformancePreferences(0,1,1);
+        this.socket.setPerformancePreferences(0,2,1);
         this.socket.setReceiveBufferSize(this.config.getMaxBytesSend());
         this.socket.setSendBufferSize(this.config.getMaxBytesSend());
 
@@ -223,6 +223,10 @@ public class Connection
 
     public void removeRemoteId(int index) {
         REMOTE_IDS.remove(index);
+    }
+
+    public int getOutTrafficQueueSize() {
+        return OUT_TRAFFIC_QUEUE.size();
     }
 
     public void closeSocket() {

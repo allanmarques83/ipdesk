@@ -34,7 +34,7 @@ public class Config {
         setBlockedsIds(configuration.optString("blockeds_ids", "[]"));
         setTrustedsIds(configuration.optString("trusteds_ids", "[]"));
         
-        setMaxBytesSend(20480);
+        setMaxBytesSend(43008);
         setMaxBytesRecieve(131072);
     }
 

@@ -135,7 +135,6 @@ public class Clients {
             return null;
         }
         catch(Exception exception) {
-            exception.printStackTrace();
             connections.remove(client_id);
             return null;
         }
@@ -156,7 +155,7 @@ public class Clients {
 
             if(connections.containsKey(destination_id)) {
                 Client client_destination = connections.get(destination_id);
-                client_destination.writeOnSocket(traffic);
+                client_destination.sendTraffic(traffic.getMessage(), traffic.getObject());
             }
             else
                 action = action.equals("setRemoteConnection") ? null : action;

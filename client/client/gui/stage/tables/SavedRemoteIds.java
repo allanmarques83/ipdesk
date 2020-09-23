@@ -1,4 +1,4 @@
-package client.gui.tables;
+package client.gui.stage.tables;
 
 import java.awt.GridBagConstraints;
 import java.awt.Color;

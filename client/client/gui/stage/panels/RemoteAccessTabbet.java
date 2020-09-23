@@ -1,12 +1,12 @@
-package client.gui.panels;
+package client.gui.stage.panels;
 
 import javax.swing.JTabbedPane;
 import java.awt.GridBagConstraints;
 import java.awt.Color;
 
 import client.gui.swing.Panel;
-import client.gui.tables.ActiveRemoteAccessTable;
-import client.gui.tables.SavedRemoteIds;
+import client.gui.stage.tables.ActiveRemoteAccessTable;
+import client.gui.stage.tables.SavedRemoteIds;
 import client.language.Language;
 import client.resources.Constants;
 import client.remote.ServerActions;

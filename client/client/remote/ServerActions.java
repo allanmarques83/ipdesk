@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Date;
 import java.awt.Color;
 
 import org.json.JSONObject;
@@ -170,7 +171,14 @@ public class ServerActions
 		String sender_id = message.getString("sender_id");
 
 		if(connection.getRemoteIds().toList().contains(sender_id)) {
-			System.out.println(traffic.getObject().length);
+			getAction("Screen.screenHandler").accept(new Object[]{
+				message,
+				Utils.decompressBytes(traffic.getObject())
+			});
+			System.out.printf("length: %s, send: %s, recieve: %s%n", 
+				traffic.getObject().length, 
+				message.getString("time"),
+				new Date().toString());
 		}
 	}
 }

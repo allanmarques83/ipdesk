@@ -1,7 +1,10 @@
 package client.resources;
 
 import java.awt.Color;
-import org.json.JSONObject;
+import javax.swing.border.Border;
+import javax.swing.border.TitledBorder;
+import javax.swing.border.EtchedBorder;
+import javax.swing.BorderFactory;
 
 public class Constants
 {
@@ -14,5 +17,9 @@ public class Constants
 		public static Color anakiwa = Color.decode("#9DE5FF");
 		public static Color red = Color.decode("#FF0000");
 		public static Color bright_green = Color.decode("#66FF00");
+	}
+
+	public static class Borders {
+		public static Border lowered = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED);
 	}
 }

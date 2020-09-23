@@ -3,6 +3,7 @@ package client.services.screen;
 import java.awt.*;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Date;
 
 import org.json.JSONObject;
 
@@ -44,7 +45,7 @@ public class ScreenView
 					while(SEND_SCREEN && connection.getControledId() != null) {
 						byte[] screen = screen_generator.getCompressBytesScreen(
 							SCREEN_RESOLUTION, SCREEN_QUALITY);
-						System.out.println(screen.length);
+
 
 						connection.sendTraffic(new JSONObject()
 							.put("destination_id", connection.getControledId())
@@ -53,9 +54,13 @@ public class ScreenView
 								screen_resolutions.get("original").toString())
 							.put("optimized_screen_resolution", 
 								screen_resolutions.get("optimized").toString())
+							.put("time", new Date().toString())
 							.toString().getBytes(), screen);
 
-						Utils.loopDelay(500);
+						int delay_factor = connection.getOutTrafficQueueSize()*250;
+
+						System.out.println(delay_factor);
+						Utils.loopDelay(delay_factor);
 
 					}
 				}

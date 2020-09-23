@@ -1,4 +1,4 @@
-package client.gui.panels;
+package client.gui.stage.panels;
 
 import javax.swing.JButton;
 import java.awt.GridBagConstraints;
@@ -11,7 +11,7 @@ import client.resources.Constants;
 import client.gui.swing.*;
 import client.remote.ServerActions;
 import client.remote.ClientActions;
-import client.gui.buttons.ButtonConnect;
+import client.gui.stage.buttons.ButtonConnect;
 
 
 public class RemoteAccessForm extends Panel
@@ -41,6 +41,7 @@ ClientActions client_actions, Language language) {
             button_connect.defActionListener((e) -> 
                   button_connect.fireActionButton(remote_client_id.getText(),
                         remote_client_password.getText()));
+            // button_connect.defActionListener((e) -> client_actions.getScreenView(null));
 
             remote_client_password = new TextField("")
                   .setPlaceHolder(language.translate("Password"), 16)

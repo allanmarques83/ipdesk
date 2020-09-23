@@ -5,6 +5,8 @@ import java.io.*;
 import java.net.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.zip.Deflater;
+import java.util.zip.Inflater;
 import java.awt.Font;
 import java.awt.Color;
 import java.util.UUID;
@@ -188,4 +190,50 @@ public class Utils {
             ex.printStackTrace();
         }
     }
+
+    public static byte[] compressBytes(byte[] bytes) {
+        try {
+            Deflater deflater = new Deflater();
+            deflater.setLevel(Deflater.BEST_COMPRESSION);
+            deflater.setInput(bytes); 
+            deflater.finish();  
+            
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream(bytes.length);
+            
+            byte[] buffer = new byte[1024];   
+
+            while (!deflater.finished())  {  
+                int count = deflater.deflate(buffer); // returns the generated code... index  
+                outputStream.write(buffer, 0, count);   
+            }  
+            outputStream.close();  
+            return outputStream.toByteArray();      
+        }
+        catch(Exception exception) {
+            return null;
+        }
+    }
+
+    public static byte[] decompressBytes(byte[] bytes) {  
+        try {
+            Inflater inflater = new Inflater();   
+            inflater.setInput(bytes);  
+
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream(bytes.length);  
+
+            byte[] buffer = new byte[1024];  
+
+            while (!inflater.finished()) 
+            {  
+                int count = inflater.inflate(buffer);  
+                outputStream.write(buffer, 0, count);  
+            }
+            outputStream.close();  
+
+            return outputStream.toByteArray();  
+        }
+        catch(Exception e) {
+            return null;
+        }
+    } 
 }

@@ -8,8 +8,8 @@ import java.awt.Color;
 import org.json.JSONObject;
 
 import client.gui.swing.*;
-import client.gui.panels.*;
-import client.gui.menu.TopMenuBar;
+import client.gui.stage.panels.*;
+import client.gui.stage.menu.TopMenuBar;
 import client.language.Language;
 import client.configuration.Config;
 import client.remote.ClientActions;
@@ -42,7 +42,7 @@ public class Stage extends Frame
             .defVisible( true );
     }
 
-    public Panel getMainPanel() {
+    private Panel getMainPanel() {
 
         Panel stage_panel = new Panel()
             .defBackground(Constants.Colors.white);

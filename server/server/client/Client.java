@@ -45,7 +45,7 @@ public class Client {
         socket.setTrafficClass(0x10);
         
         socket.setSendBufferSize(MAX_BYTES_SEND);
-        socket.setPerformancePreferences(1,0,1);
+        socket.setPerformancePreferences(0,2,1);
 
         OUTPUT_DATA = new ObjectOutputStream(socket.getOutputStream());
     }

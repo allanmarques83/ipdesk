@@ -1,6 +1,9 @@
 package client.remote;
 
 import org.json.JSONObject;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.function.Consumer;
 
 import client.language.Language;
 import client.configuration.Config;
@@ -11,10 +14,23 @@ public class ClientActions
 {
 	Connection connection;
 	Language language;
+	
+	private Map<String, Consumer<Object[]>> actions;
 
 	public ClientActions(Connection connection, Language language) {
 		this.connection = connection;
 		this.language = language;
+
+		this.actions = new HashMap<>();
+		
+	}
+
+	public void addAction(String action_name, Consumer<Object[]> action) {
+		actions.put(action_name, action);
+	}
+
+	public Consumer<Object[]> getAction(String action_name) {
+		return actions.get(action_name);
 	}
 
 	public boolean connect_to(String remote_id, String password) {
@@ -42,6 +58,9 @@ public class ClientActions
 	}
 
 	public void getScreenView(Object[] params) {
+		getAction("Screen.newScreen").accept(new Object[]{
+			params[0].toString()
+		});
 		this.connection.sendTraffic(
 			new JSONObject()
 				.put("action", "getScreenView")
@@ -53,12 +72,13 @@ public class ClientActions
 
 	public void closeControledId() {
 
+		String controled_id = connection.getControledId();
 		connection.setControledId(null);
 		
 		this.connection.sendTraffic(
 			new JSONObject()
 				.put("action", "closeRemoteIdControled")
-					.put("destination_id", connection.getControledId())
+					.put("destination_id", controled_id)
 						.toString().getBytes(),
 							null);
 

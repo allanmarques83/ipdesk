@@ -1,4 +1,4 @@
-package client.gui.panels;
+package client.gui.stage.panels;
 
 import java.awt.Color;
 import java.awt.Font;
