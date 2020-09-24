@@ -9,8 +9,7 @@ import client.gui.stage.tables.ActiveRemoteAccessTable;
 import client.gui.stage.tables.SavedRemoteIds;
 import client.language.Language;
 import client.resources.Constants;
-import client.remote.ServerActions;
-import client.remote.ClientActions;
+import client.remote.SystemActions;
 
 public class RemoteAccessTabbet extends Panel
 {
@@ -18,13 +17,12 @@ public class RemoteAccessTabbet extends Panel
 
 	ActiveRemoteAccessTable active_remote_access;
 
-	public RemoteAccessTabbet(Language language, ServerActions server_actions,
-		ClientActions client_actions) {
+	public RemoteAccessTabbet(Language language, SystemActions system_actions) {
 		super();
 
 		active_remote_access = new ActiveRemoteAccessTable(language, 
-			params -> client_actions.closeRemoteIdConnection(params),
-			params -> client_actions.getScreenView(params));
+			system_actions.getAction("closeRemoteIdConnection"),
+			system_actions.getAction("getScreenView"));
 
 		this.defBackground(Constants.Colors.white);
 
@@ -36,10 +34,10 @@ public class RemoteAccessTabbet extends Panel
         tab_remote_access.addTab(language.translate("Saved IDs:"), null,
                 new SavedRemoteIds(language).getTableScroll(), null);
 
-        server_actions.addAction("addRemoteIdConnection", params -> 
+        system_actions.addAction("addRemoteIdConnection", params -> 
         	active_remote_access.addRemoteIdConnection(params));
 
-        server_actions.addAction("removeRemoteIdConnection", params -> 
+        system_actions.addAction("removeRemoteIdConnection", params -> 
         	active_remote_access.removeRemoteIdConnection(params));
         
 	}

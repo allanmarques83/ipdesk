@@ -34,6 +34,11 @@ public class ComboBox<String> extends JComboBox<String>
         return this;
     }
 
+    public ComboBox defFont(int size, int font_style) {
+        this.setFont(new Font("Arial", font_style, size));
+        return this;
+    }
+
     public ComboBox defBorder(Border border) {
         this.setBorder(border);
         return this;

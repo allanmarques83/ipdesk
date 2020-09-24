@@ -7,14 +7,15 @@ import java.awt.Color;
 import java.util.function.Consumer;
 import java.util.Vector;
 import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
 
 import org.json.JSONObject;
-import org.json.JSONArray;
 
 import client.configuration.Config;
 import client.language.Language;
 import client.remote.ServerActions;
-import client.remote.ClientActions;
+import client.remote.SystemActions;
 import client.resources.Utils;
 import client.resources.Constants;
 import traffic_model.TrafficModel;
@@ -27,10 +28,10 @@ public class Connection
 	private Config config;
 	private Language language;
     private ServerActions server_actions;
-    private ClientActions client_actions;
+    private SystemActions system_actions;
 
 	private String CLIENT_ID, CONTROLED_ID;
-    private JSONArray REMOTE_IDS;
+    private Set<String> REMOTE_IDS;
     private Vector<TrafficModel> OUT_TRAFFIC_QUEUE;
 
 
@@ -38,14 +39,19 @@ public class Connection
 		this.config = config;
 		this.language = language;
 
-        REMOTE_IDS = new JSONArray();
+        REMOTE_IDS = new HashSet<>();
         OUT_TRAFFIC_QUEUE = new Vector<>(1);
 	}
 
-	public void setActions(ServerActions server_actions,
-			ClientActions client_actions) {
+	public void setActions(ServerActions server_actions, SystemActions system_actions) {
 		this.server_actions = server_actions;
-		this.client_actions = client_actions;
+        this.system_actions = system_actions;
+
+        this.system_actions
+            .addData("Connection", () -> new JSONObject()
+                .put("getClientId",getClientId())
+                    .put("getControledId", getControledId())
+                        .put("getOutTrafficQueueSize", getOutTrafficQueueSize()));
 	}
 
 	public void establish(String status_message, int seconds_delay) {
@@ -58,7 +64,7 @@ public class Connection
 					
 					while(steps > 0) {
 						Thread.sleep(1000);
-						server_actions.getAction("setStatusSystem").accept(new Object[]{ 
+						system_actions.getAction("setStatusSystem").accept(new Object[]{ 
 							String.format(language.translate(status_message), steps), 
 								Constants.Colors.red});
 						steps--;
@@ -213,16 +219,16 @@ public class Connection
         return CLIENT_ID;
     }
 
-    public JSONArray getRemoteIds() {
+    public Set<String> getRemoteIds() {
         return REMOTE_IDS;
     }
 
     public void addRemoteId(String remote_id) {
-        REMOTE_IDS.put(remote_id);
+        REMOTE_IDS.add(remote_id);
     }
 
-    public void removeRemoteId(int index) {
-        REMOTE_IDS.remove(index);
+    public void removeRemoteId(String remote_id) {
+        REMOTE_IDS.remove(remote_id);
     }
 
     public int getOutTrafficQueueSize() {
@@ -233,7 +239,7 @@ public class Connection
         try 
         {
             this.socket.close();
-            server_actions.getAction("setEnabledButtonConnect")
+            system_actions.getAction("setEnabledButtonConnect")
                 .accept(new Object[]{false});
 
         } catch (Exception exception) {
@@ -242,14 +248,14 @@ public class Connection
     }
 
     private void serverDownAction() {
-        List<Object> remote_ids = getRemoteIds().toList();
+        Set<String> remote_ids = getRemoteIds();
 
-        for(Object remote_id : remote_ids) {
-            server_actions.getAction("removeRemoteIdConnection").accept(
-                new Object[]{(String)remote_id});
-            removeRemoteId(remote_ids.indexOf((String)remote_id));
+        for(String remote_id : remote_ids) {
+            system_actions.getAction("removeRemoteIdConnection").accept(
+                new Object[]{remote_id});
+            removeRemoteId(remote_id);
         }
-        server_actions.getAction("setButtonConnectionAction").accept(
+        system_actions.getAction("setButtonConnectionAction").accept(
             new Object[]{"connect_to"});
         setControledId(null);
 

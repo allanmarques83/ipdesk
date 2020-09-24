@@ -6,34 +6,36 @@ import java.awt.Color;
 
 import client.language.Language;
 import client.configuration.Config;
-import client.remote.ServerActions;
-import client.remote.ClientActions;
+import client.remote.SystemActions;
 import client.gui.swing.*;
 import client.resources.Constants;
 import client.gui.screen.panels.ScreenTabsPanel;
+import client.services.screen.ScreenView;
 
 public class Screen extends Frame 
 {
 	private Language language;
 	private Config config;
-	private ServerActions server_actions;
-	private ClientActions client_actions;
+	private SystemActions system_actions;
+	private ScreenView screen_view;
+
 
 	private ScreenTabsPanel tabs_panel;
 
-	public Screen(Config config, Language language, ServerActions server_actions, 
-            ClientActions client_actions) {
+	public Screen(Config config, Language language, SystemActions system_actions) {
 		this.language = language;
-		this.server_actions = server_actions;
-		this.client_actions = client_actions;
+		this.system_actions = system_actions;
 		this.config = config;
 
-		this.tabs_panel = new ScreenTabsPanel(language);
+		this.screen_view = new ScreenView(system_actions);
 
-		client_actions.addAction("Screen.newScreen", params -> 
+		this.tabs_panel = new ScreenTabsPanel(language);
+		this.tabs_panel.setCloseTab(params -> this.closeTab(params));
+
+		system_actions.addAction("Screen.newScreen", params -> 
 			newScreen(params));
 
-		server_actions.addAction("Screen.screenHandler", params -> 
+		system_actions.addAction("Screen.screenHandler", params -> 
 			this.tabs_panel.screenHandler(params));
 
 		this
@@ -64,5 +66,12 @@ public class Screen extends Frame
     private void newScreen(Object[] params) {
     	this.setVisible(true);
     	this.tabs_panel.addTab((String)params[0]);
+    }
+
+    private void closeTab(Object[] params) {
+    	this.system_actions.getAction("stopScreen").accept(params);
+
+    	if((boolean)params[1])
+    		this.setVisible(false);
     }
 }

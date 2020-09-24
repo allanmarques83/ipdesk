@@ -10,17 +10,17 @@ import client.resources.*;
 import client.gui.swing.Panel;
 import client.gui.swing.Label;
 import client.gui.swing.TextField;
-import client.remote.ServerActions;
+import client.remote.SystemActions;
 
 public class ClientIdentity extends Panel
 {
     TextField textfield_client_id;
 	String system_password;
 
-	public ClientIdentity(Config config, ServerActions server_actions) {
+	public ClientIdentity(Config config, SystemActions system_actions) {
 		super();
 
-        server_actions.addAction("setRemoteClientId", params -> 
+        system_actions.addAction("Stage.setRemoteId", params -> 
             textfield_client_id.setText((String)params[0]));
 
 		this.system_password = config.getPassword();

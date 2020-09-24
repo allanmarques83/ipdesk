@@ -1,6 +1,9 @@
 package client.resources;
 
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Toolkit;
+
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 import javax.swing.border.EtchedBorder;
@@ -21,5 +24,11 @@ public class Constants
 
 	public static class Borders {
 		public static Border lowered = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED);
+	}
+
+	public static class Monitor {
+		public static Dimension screen_size = Toolkit.getDefaultToolkit().getScreenSize();
+		public static Integer width = screen_size.width;
+		public static Integer height = screen_size.height;
 	}
 }

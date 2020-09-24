@@ -1,6 +1,7 @@
 package client.gui.screen.panels;
 
 import java.awt.GridBagConstraints;
+import java.awt.Font;
 
 import client.resources.Constants;
 import client.gui.swing.ComboBox;
@@ -18,16 +19,19 @@ public class ScreenActionsPanel extends Panel
             .weight(0,0)
 	        .ipad(5,5)
 	        .anchor(GridBagConstraints.NORTHWEST)
-	        .attach(new ComboBox<String>(new String[]{"Resolution:"})
-	        		.defBackground(Constants.Colors.white), "");
+	        .attach(new ComboBox<String>(new String[]{
+	        	"Fit Screen", "Original", "Optimized"})
+	        		.defBackground(Constants.Colors.white)
+	        		.defFont(10, Font.PLAIN), "");
 
 	    this.fill(GridBagConstraints.NONE)
             .grid(1,0)
             .weight(1,0)
 	        .ipad(5,5)
 	        .anchor(GridBagConstraints.NORTHWEST)
-	        .attach(new ComboBox<String>(new String[]{"Quality:"})
-	        		.defBackground(Constants.Colors.white), "");
+	        .attach(new ComboBox<String>(new String[]{"Normal", "Best"})
+	        		.defBackground(Constants.Colors.white)
+	        		.defFont(10, Font.PLAIN), "");
 
 	}
 }

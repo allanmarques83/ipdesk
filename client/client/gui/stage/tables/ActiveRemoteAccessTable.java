@@ -138,7 +138,7 @@ public class ActiveRemoteAccessTable extends Table
                         removeRow(row);
                     }
                     if(colunm_name.equals("SC:")) {
-                        getScreenView.accept(new Object[]{remote_id});
+                        getScreenView.accept(new Object[]{remote_id, Constants.Monitor.width});
                     }
                           
                 }

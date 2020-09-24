@@ -1,5 +1,6 @@
 package client.gui.screen.panels;
 
+import java.util.function.Consumer;
 import javax.swing.JTabbedPane;
 import java.awt.GridBagConstraints;
 import java.awt.Color;
@@ -16,6 +17,8 @@ public class ScreenTabsPanel extends Panel
 {
 	JTabbedPane tab_remote_ids;
 	Map<String, ScreenTab> tabs;
+
+	Consumer<Object[]> set_close_tab;
 
 	public ScreenTabsPanel(Language language) {
 		super();
@@ -54,8 +57,12 @@ public class ScreenTabsPanel extends Panel
 		this.tab_remote_ids.removeTabAt(tab_index);
 		tabs.remove(remote_id);
 
-		// if(this.tab_remote_ids.getTabCount() == 0)
-		// 	setVisible(false);
+		this.set_close_tab.accept(new Object[]{remote_id,
+			this.tab_remote_ids.getTabCount() == 0});
+	}
+
+	public void setCloseTab(Consumer<Object[]> set_close_tab) {
+		this.set_close_tab = set_close_tab;
 	}
 
 	public void screenHandler(Object[] params) {

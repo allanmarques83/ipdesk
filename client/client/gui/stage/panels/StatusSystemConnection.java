@@ -8,13 +8,13 @@ import client.gui.swing.Panel;
 import client.gui.swing.Label;
 import client.resources.Utils;
 import client.resources.Constants;
-import client.remote.ServerActions;
+import client.remote.SystemActions;
 
 public class StatusSystemConnection extends Panel
 {
 	private Label label_status;
 
-	public StatusSystemConnection(ServerActions server_actions) {
+	public StatusSystemConnection(SystemActions system_actions) {
 		super();
 
 		this.defBackground(Constants.Colors.black);
@@ -22,7 +22,7 @@ public class StatusSystemConnection extends Panel
 		label_status = new Label("", Utils.toIcon("images/tip.png"))
 			.defFont(11, Font.BOLD);
 		
-		server_actions.addAction("setStatusSystem", params -> 
+		system_actions.addAction("setStatusSystem", params -> 
 			setStatus((String)params[0], (Color)params[1]));
 	}
 

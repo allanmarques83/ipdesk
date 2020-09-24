@@ -13,23 +13,21 @@ import client.gui.stage.menu.TopMenuBar;
 import client.language.Language;
 import client.configuration.Config;
 import client.remote.ClientActions;
-import client.remote.ServerActions;
+import client.remote.SystemActions;
 import client.resources.Constants;
 
 public class Stage extends Frame
 {
     private Language language;
     private Config config;
-    private ServerActions server_actions;
+    private SystemActions system_actions;
     private ClientActions client_actions;
 
-    public Stage(Config config, Language language, ServerActions server_actions, 
-            ClientActions client_actions) {
+    public Stage(Config config, Language language, SystemActions system_actions) {
 
         this.config = config;
         this.language = language;
-        this.server_actions = server_actions;
-        this.client_actions = client_actions;
+        this.system_actions = system_actions;
 
         this
             .defTitle(config.getTitle())
@@ -53,7 +51,7 @@ public class Stage extends Frame
             .weight(1,0)
             .ipad(5,5)
             .anchor(GridBagConstraints.NORTHWEST)
-            .attach(new ClientIdentity(config, server_actions).getPanel(language), 
+            .attach(new ClientIdentity(config, system_actions).getPanel(language), 
                 "client_identity");
 
         stage_panel
@@ -70,23 +68,23 @@ public class Stage extends Frame
             .weight(1,0)
             .ipad(5,5)
             .anchor(GridBagConstraints.NORTH)
-            .attach(new RemoteAccessForm(server_actions, client_actions,
-                    language).getPanel(), "remote_access_form");
+            .attach(new RemoteAccessForm(system_actions, language)
+                .getPanel(), "remote_access_form");
 
         stage_panel
             .fill(GridBagConstraints.HORIZONTAL)
             .grid(0,3)
             .weight(1,0)
             .anchor(GridBagConstraints.NORTH)
-            .attach(new RemoteAccessTabbet(language, server_actions, 
-                client_actions).getPanel(), "tabbet_remote_access");
+            .attach(new RemoteAccessTabbet(language, system_actions)
+                .getPanel(), "tabbet_remote_access");
 
         stage_panel
             .fill(GridBagConstraints.HORIZONTAL)
             .grid(0,4)
             .weight(1,1)
             .anchor(GridBagConstraints.NORTH)
-            .attach(new StatusSystemConnection(server_actions).getPanel(),
+            .attach(new StatusSystemConnection(system_actions).getPanel(),
                 "status_system");
 
         return stage_panel;

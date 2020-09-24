@@ -1,15 +1,11 @@
 package client.remote;
 
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-import java.util.Map;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.Date;
 import java.awt.Color;
 
 import org.json.JSONObject;
-import org.json.JSONArray;
 
 import traffic_model.TrafficModel;
 import client.language.Language;
@@ -18,43 +14,21 @@ import client.resources.Constants;
 import client.configuration.Config;
 import client.remote.AttemptConnection;
 import client.remote.Connection;
-import client.services.screen.ScreenView;
+import client.remote.SystemActions;
 
 public class ServerActions
 {
 	Config config;
 	Connection connection;
 	Language language;
+	SystemActions actions;
 
-	ScreenView screen_view;
-
-	private Map<String, Consumer<Object[]>> actions;
-	private Map<String, Supplier<Object[]>> data;
-
-	public ServerActions(Connection connection, Language language, Config config) {
+	public ServerActions(Connection connection, Language language, Config config, 
+SystemActions actions) {
 		this.language = language;
 		this.connection = connection;
 		this.config = config;
-
-		this.actions = new HashMap<>();
-		this.data = new HashMap<>();
-		screen_view = new ScreenView(connection);
-	}
-
-	public void addAction(String action_name, Consumer<Object[]> action) {
-		actions.put(action_name, action);
-	}
-
-	public Consumer<Object[]> getAction(String action_name) {
-		return actions.get(action_name);
-	}
-
-	public void addData(String data_name, Supplier<Object[]> data) {
-		this.data.put(data_name, data);
-	}
-
-	public Object[] getData(String data_name) {
-		return data.get(data_name).get();
+		this.actions = actions;
 	}
 
 	public void successfulServerEntry(TrafficModel traffic) {
@@ -63,13 +37,13 @@ public class ServerActions
 		this.connection.removeTimeoutFromSocket();
 		this.connection.setClientId(message.getString("client_id"));
 
-		getAction("setRemoteClientId").accept(new Object[]{
+		actions.getAction("Stage.setRemoteId").accept(new Object[]{
 			message.getString("client_id")
 		});
 		
-		getAction("setEnabledButtonConnect").accept(new Object[]{true});
+		actions.getAction("setEnabledButtonConnect").accept(new Object[]{true});
 
-        getAction("setStatusSystem").accept(new Object[]{
+        actions.getAction("setStatusSystem").accept(new Object[]{
         	language.translate("Connection successful establish."),
         	Constants.Colors.bright_green
         });
@@ -91,7 +65,7 @@ public class ServerActions
 			.isValid(connection.getControledId(), sender_id, password);
 
 		if(is_valid_connection) {
-			getAction("setButtonConnectionAction").accept(
+			actions.getAction("setButtonConnectionAction").accept(
 				new Object[]{"remote_controled", sender_id});
 
 			connection.setControledId(sender_id);
@@ -109,19 +83,19 @@ public class ServerActions
 	public boolean responseAttemptConnection(TrafficModel traffic) {
 		JSONObject message = new JSONObject(new String(traffic.getMessage()));
 
-		String button_status_action = getData("getButtonConnectAcion")[0]
-			.toString();
+		String button_status_action = actions.getData("ButtonConnect")
+			.getString("getActionCommand");
 
 		if(button_status_action.equals("cancel_connection")) {
 			boolean response = message.getBoolean("response");
 
-			getAction("setButtonConnectionAction").accept(new Object[]{"connect_to"});
+			actions.getAction("setButtonConnectionAction").accept(new Object[]{"connect_to"});
 
 			if(!response) {
 				return Utils.Error(language.translate("Invalid remote ID!"));
 			}
 
-			getAction("addRemoteIdConnection").accept(new Object[]{
+			actions.getAction("addRemoteIdConnection").accept(new Object[]{
 				message.getString("sender_id")});
 			connection.addRemoteId(message.getString("sender_id"));
 
@@ -135,11 +109,11 @@ public class ServerActions
 		JSONObject message = new JSONObject(new String(traffic.getMessage()));
 		
 		String sender_id = message.getString("sender_id");
-		List<Object> remote_ids = connection.getRemoteIds().toList();
+		Set<String> remote_ids = connection.getRemoteIds();
 
 		if(remote_ids.contains(sender_id)) {
-			getAction("removeRemoteIdConnection").accept(new Object[]{sender_id});
-			connection.removeRemoteId(remote_ids.indexOf(sender_id));
+			actions.getAction("removeRemoteIdConnection").accept(new Object[]{sender_id});
+			connection.removeRemoteId(sender_id);
 		}
 
 		return true;
@@ -150,7 +124,7 @@ public class ServerActions
 		String sender_id = message.getString("sender_id");
 
 		if(connection.getControledId().equals(sender_id)) {
-			getAction("setButtonConnectionAction").accept(new Object[]{"connect_to"});
+			actions.getAction("setButtonConnectionAction").accept(new Object[]{"connect_to"});
 			connection.setControledId(null);
 		}
 	}
@@ -161,7 +135,8 @@ public class ServerActions
 		String sender_id = message.getString("sender_id");
 
 		if(sender_id.equals(connection.getControledId())) {
-			screen_view.startSendScreen();
+			actions.getAction("ScreenView.startSendScreen").accept(
+				new Object[]{message.getInt("monitor_resolution")});
 		}
 	}
 
@@ -170,8 +145,8 @@ public class ServerActions
 
 		String sender_id = message.getString("sender_id");
 
-		if(connection.getRemoteIds().toList().contains(sender_id)) {
-			getAction("Screen.screenHandler").accept(new Object[]{
+		if(connection.getRemoteIds().contains(sender_id)) {
+			actions.getAction("Screen.screenHandler").accept(new Object[]{
 				message,
 				Utils.decompressBytes(traffic.getObject())
 			});
@@ -180,5 +155,15 @@ public class ServerActions
 				message.getString("time"),
 				new Date().toString());
 		}
+	}
+
+	public void stopScreen(TrafficModel traffic) {
+		JSONObject message = new JSONObject(new String(traffic.getMessage()));
+		String sender_id = message.getString("sender_id");
+
+		if(sender_id.equals(connection.getControledId())) {
+			actions.getAction("ScreenView.stopSendScreen").accept(null);
+		}
+		
 	}
 }

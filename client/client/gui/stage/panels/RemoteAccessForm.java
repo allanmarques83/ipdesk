@@ -5,12 +5,13 @@ import java.awt.GridBagConstraints;
 import java.awt.Color;
 import java.awt.Font;
 
+import org.json.JSONObject;
+
 import client.language.Language;
 import client.resources.Utils;
 import client.resources.Constants;
 import client.gui.swing.*;
-import client.remote.ServerActions;
-import client.remote.ClientActions;
+import client.remote.SystemActions;
 import client.gui.stage.buttons.ButtonConnect;
 
 
@@ -20,13 +21,12 @@ public class RemoteAccessForm extends Panel
       ButtonConnect button_connect;
 
       Language language;
-      ClientActions client_actions;
+      SystemActions system_actions;
 
-	public RemoteAccessForm(ServerActions server_actions, 
-ClientActions client_actions, Language language) {
+	public RemoteAccessForm(SystemActions system_actions, Language language) {
 		super();
 
-            this.client_actions = client_actions;
+            this.system_actions = system_actions;
             this.language = language;
 
             remote_client_id = new TextField("")
@@ -37,7 +37,7 @@ ClientActions client_actions, Language language) {
                   .fireButtonClickWhenPressEnter(button_connect)
                   .defFont(16, Font.PLAIN);
 
-            button_connect = new ButtonConnect(language, client_actions);
+            button_connect = new ButtonConnect(language, system_actions);
             button_connect.defActionListener((e) -> 
                   button_connect.fireActionButton(remote_client_id.getText(),
                         remote_client_password.getText()));
@@ -51,14 +51,14 @@ ClientActions client_actions, Language language) {
                   .setHorizontalAlignment()
                   .defFont(16, Font.PLAIN);
 
-            server_actions.addAction("setEnabledButtonConnect", params -> 
+            system_actions.addAction("setEnabledButtonConnect", params -> 
                   button_connect.defEnabled((boolean)params[0]));
 
-            server_actions.addAction("setButtonConnectionAction", params -> 
+            system_actions.addAction("setButtonConnectionAction", params -> 
                   button_connect.setButtonConnectionAction(params));
 
-            server_actions.addData("getButtonConnectAcion", () -> 
-                  new Object[]{button_connect.getActionCommand()});
+            system_actions.addData("ButtonConnect", () -> new JSONObject()
+                  .put("getActionCommand", button_connect.getActionCommand()));
 
 		this.defBackground(Constants.Colors.white);
 	}

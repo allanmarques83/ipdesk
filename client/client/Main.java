@@ -10,6 +10,7 @@ import client.configuration.Config;
 import client.remote.Connection;
 import client.remote.ServerActions;
 import client.remote.ClientActions;
+import client.remote.SystemActions;
 
 public class Main
 {
@@ -18,6 +19,7 @@ public class Main
     Connection connection;
     ServerActions server_actions;
     ClientActions client_actions;
+    SystemActions system_actions;
 
     public Main() {
         
@@ -26,13 +28,14 @@ public class Main
         config = new Config();
         language = new Language(config.getLanguage());
         connection = new Connection(config, language);
-        server_actions = new ServerActions(connection, language, config);
-        client_actions = new ClientActions(connection, language);
+        system_actions = new SystemActions();
+        server_actions = new ServerActions(connection, language, config, system_actions);
+        client_actions = new ClientActions(connection, language, system_actions);
 
-        connection.setActions(server_actions, client_actions);
+        connection.setActions(server_actions, system_actions);
 
-        new Stage(config, language, server_actions, client_actions);
-        new Screen(config, language, server_actions, client_actions);
+        new Stage(config, language, system_actions);
+        new Screen(config, language, system_actions);
 
         connection.establish("Try to establish connection in: [%ds]", 3);
     }

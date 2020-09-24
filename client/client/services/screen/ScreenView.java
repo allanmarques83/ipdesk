@@ -8,12 +8,13 @@ import java.util.Date;
 import org.json.JSONObject;
 
 import client.services.screen.ScreenGenerator;
-import client.remote.Connection;
+import client.remote.SystemActions;
 import client.resources.Utils;
+import client.resources.Constants;
 
 public class ScreenView
 {
-	private Connection connection;
+	private SystemActions system_actions;
 	private ScreenGenerator screen_generator;
 
 	private Map<String, Integer> screen_resolutions;
@@ -23,8 +24,14 @@ public class ScreenView
 	private int SCREEN_RESOLUTION;
 	private float SCREEN_QUALITY;
 
-	public ScreenView(Connection connection) {
-		this.connection = connection;
+	public ScreenView(SystemActions system_actions) {
+		this.system_actions = system_actions;
+
+		this.system_actions
+			.addAction("ScreenView.startSendScreen", 
+				params -> startSendScreen(params))
+			.addAction("ScreenView.stopSendScreen",
+				params -> stopSendScreen());
 
 		screen_generator = new ScreenGenerator();
 
@@ -34,7 +41,7 @@ public class ScreenView
 		setScreenQuality(0.5f);
 	}
 
-	public void startSendScreen() {
+	public void startSendScreen(Object[] params) {
 		SEND_SCREEN = true;
 
 		Thread thread = new Thread()
@@ -42,24 +49,16 @@ public class ScreenView
 			public void run() 
             {
 				try {
-					while(SEND_SCREEN && connection.getControledId() != null) {
+					while(SEND_SCREEN && system_actions.getData("Connection")
+							.getString("getControledId") != null) {
 						byte[] screen = screen_generator.getCompressBytesScreen(
-							SCREEN_RESOLUTION, SCREEN_QUALITY);
+							(int)params[0], SCREEN_QUALITY);
 
+						system_actions.getAction("sendScreen").accept(new Object[]{screen});
 
-						connection.sendTraffic(new JSONObject()
-							.put("destination_id", connection.getControledId())
-							.put("action", "setScreenView")
-							.put("original_screen_resolution", 
-								screen_resolutions.get("original").toString())
-							.put("optimized_screen_resolution", 
-								screen_resolutions.get("optimized").toString())
-							.put("time", new Date().toString())
-							.toString().getBytes(), screen);
+						int delay_factor = system_actions.getData("Connection")
+							.getInt("getOutTrafficQueueSize")*250;
 
-						int delay_factor = connection.getOutTrafficQueueSize()*250;
-
-						System.out.println(delay_factor);
 						Utils.loopDelay(delay_factor);
 
 					}
@@ -77,9 +76,8 @@ public class ScreenView
 	}
 
 	private void setScreenResolutions() {
-		Dimension screen_size = Toolkit.getDefaultToolkit().getScreenSize();
 
-		int width = screen_size.width;
+		int width = Constants.Monitor.width;
 		Double percent = (25.0/100.0)*width;
 		int low_width = width-percent.intValue();
 

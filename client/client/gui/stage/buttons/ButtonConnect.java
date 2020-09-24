@@ -4,20 +4,20 @@ import javax.swing.SwingWorker;
 
 import client.gui.swing.Button;
 import client.language.Language;
-import client.remote.ClientActions;
+import client.remote.SystemActions;
 import client.resources.Utils;
 import client.resources.Constants;
 
 public class ButtonConnect extends Button
 {
 	Language language;
-	ClientActions client_actions;
+	SystemActions system_actions;
 
-	public ButtonConnect(Language language, ClientActions client_actions) {
+	public ButtonConnect(Language language, SystemActions system_actions) {
 		super(language.translate("Connect"), null);
 		
 		this.language = language;
-		this.client_actions = client_actions;
+		this.system_actions = system_actions;
 
 		this.defEnabled(false)
             .defActionCommand("connect_to");
@@ -31,7 +31,7 @@ public class ButtonConnect extends Button
             }
 
             if(command_execution.equals("remote_controled")) {
-                  client_actions.closeControledId();
+                  system_actions.getAction("closeControledId").accept(new Object[]{});
                   setButtonConnectionAction(new Object[]{"connect_to"});
                   return true;
             }
@@ -41,14 +41,24 @@ public class ButtonConnect extends Button
       }
 
       private boolean connect_to(String remote_id, String password) {
-            boolean is_valid_form = client_actions.connect_to(remote_id, password);
 
-            if(is_valid_form) {
-                  setButtonConnectionAction(new Object[]{
-                        "cancel_connection",
-                  });
+            if(remote_id.replace(language.translate("Remote ID"),"").length() < 5) {
+                  return Utils.Error(language.translate("Invalid remote ID!"));
             }
-            return is_valid_form;
+
+            if(password.replace(language.translate("Password"),"").length() < 8) {
+                  return Utils.Error(language.translate("Invalid password!"));
+            }
+
+            if(remote_id.equals(system_actions.getData("Connection").getString("getClientId"))) {
+                  return Utils.Error(language.translate("Self connection error!"));
+            }
+
+            system_actions.getAction("connect_to").accept(new Object[]{remote_id, password});
+
+            setButtonConnectionAction(new Object[]{"cancel_connection"});
+            
+            return true;
       }
 
       private void startCountDownConfirm() {
