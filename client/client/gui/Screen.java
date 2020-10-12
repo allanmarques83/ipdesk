@@ -44,6 +44,7 @@ public class Screen extends Frame
             .defLocationRelativeTo(null)
             .defBounds(0,0,1024, 600)
             .attach(getMainPanel())
+            .onCloseEvent(params -> closeAllTabs(), null)
             .defVisible( false );
 	}
 
@@ -73,5 +74,9 @@ public class Screen extends Frame
 
     	if((boolean)params[1])
     		this.setVisible(false);
+    }
+
+    private void closeAllTabs() {
+    	this.tabs_panel.closeAllTabs();
     }
 }

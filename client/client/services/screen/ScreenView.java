@@ -38,7 +38,7 @@ public class ScreenView
 		screen_resolutions = new HashMap<>();
 		screen_quality = new HashMap<>();
 		setScreenResolutions();
-		setScreenQuality(0.5f);
+		setScreenQuality(0.4f);
 	}
 
 	public void startSendScreen(Object[] params) {
@@ -57,7 +57,7 @@ public class ScreenView
 						system_actions.getAction("sendScreen").accept(new Object[]{screen});
 
 						int delay_factor = system_actions.getData("Connection")
-							.getInt("getOutTrafficQueueSize")*250;
+							.getInt("getOutTrafficQueueSize")*750;
 
 						Utils.loopDelay(delay_factor);
 

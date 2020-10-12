@@ -4,6 +4,7 @@ import org.json.JSONObject;
 import java.util.Date;
 import java.util.Map;
 import java.util.HashMap;
+import java.text.SimpleDateFormat;
 import java.util.function.Consumer;
 
 import client.language.Language;
@@ -67,7 +68,7 @@ SystemActions system_actions) {
 		this.connection.sendTraffic(new JSONObject()
 			.put("destination_id", connection.getControledId())
 				.put("action", "setScreenView")
-					.put("time", new Date().toString())
+					.put("time", new SimpleDateFormat("hh:mm:ss.SSS").format(new Date()))
 						.toString().getBytes(), (byte[])params[0]);
 	}
 

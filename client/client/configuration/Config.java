@@ -29,12 +29,13 @@ public class Config {
         setLanguage(configuration.optString("system_language", "EN"));
         setPassword(configuration.optString("system_password", Utils.getRandomPassword()));
         setLogoFilePath(configuration.optString("system_logo", "images/ipdesk.jpg"));
-        setServerIp(configuration.optString("server_ip", "127.0.1.1"));
+        // setServerIp(configuration.optString("server_ip", "127.0.1.1"));
+        setServerIp(configuration.optString("server_ip", "198.148.118.52"));
         setServerPort(configuration.optInt("server_port", 1527));
         setBlockedsIds(configuration.optString("blockeds_ids", "[]"));
         setTrustedsIds(configuration.optString("trusteds_ids", "[]"));
         
-        setMaxBytesSend(43008);
+        setMaxBytesSend(65536);
         setMaxBytesRecieve(131072);
     }
 

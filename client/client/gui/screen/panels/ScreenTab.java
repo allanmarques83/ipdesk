@@ -19,7 +19,7 @@ public class ScreenTab extends Panel
 	public ScreenTab(String remote_id) {
 		super();
 
-		screen_view = new Label("", Utils.toIcon("images/test_image.png"));
+		screen_view = new Label("", Utils.toIcon("images/ipdesk.jpg"));
 
 		this.defBackground(Constants.Colors.white)
 			.defBorder(Constants.Borders.lowered);

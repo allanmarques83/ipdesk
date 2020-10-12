@@ -61,6 +61,19 @@ public class ScreenTabsPanel extends Panel
 			this.tab_remote_ids.getTabCount() == 0});
 	}
 
+	public void closeAllTabs() {
+
+		for(String remote_id : tabs.keySet()) {
+
+			int tab_index = this.tab_remote_ids.indexOfTab(remote_id);
+			this.tab_remote_ids.removeTabAt(tab_index);
+			tabs.remove(remote_id);
+
+			this.set_close_tab.accept(new Object[]{remote_id,
+				this.tab_remote_ids.getTabCount() == 0});
+		}
+	}
+
 	public void setCloseTab(Consumer<Object[]> set_close_tab) {
 		this.set_close_tab = set_close_tab;
 	}

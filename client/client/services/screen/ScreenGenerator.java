@@ -31,10 +31,16 @@ public class ScreenGenerator
 	}
 
 	public byte[] getCompressBytesScreen(int image_width, float image_quality) {
-		try {	
+		try {
+			int size_w = new Double((double)image_width/2).intValue();
+
 			BufferedImage full_image = robot.createScreenCapture(screen_rect);
 			BufferedImage scaled_image = Scalr.resize(full_image, 
 				Scalr.Method.QUALITY,image_width, 1);
+
+			// BufferedImage cropped_image = Scalr.crop(scaled_image,size_w,
+			// 	scaled_image.getHeight());
+
 
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
 			ImageOutputStream ios = ImageIO.createImageOutputStream(out);

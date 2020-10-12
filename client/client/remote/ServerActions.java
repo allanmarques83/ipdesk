@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.Date;
 import java.awt.Color;
-
+import java.text.SimpleDateFormat;
 import org.json.JSONObject;
 
 import traffic_model.TrafficModel;
@@ -153,7 +153,7 @@ SystemActions actions) {
 			System.out.printf("length: %s, send: %s, recieve: %s%n", 
 				traffic.getObject().length, 
 				message.getString("time"),
-				new Date().toString());
+				new SimpleDateFormat("hh:mm:ss.SSS").format(new Date()));
 		}
 	}
 

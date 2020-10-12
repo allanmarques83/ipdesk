@@ -2,6 +2,9 @@ package client.gui.swing;
 
 import javax.swing.JMenuBar;
 import java.awt.Component;
+import java.util.function.Consumer;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -38,6 +41,14 @@ public class Frame extends JFrame
     }
     public Frame defJMenuBar(JMenuBar jmenu_bar) {
         super.setJMenuBar(jmenu_bar);
+        return this;
+    }
+    public Frame onCloseEvent(Consumer<Object[]> action, Object[] args) {
+        this.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent windowEvent) {
+                action.accept(args);
+            }
+        });
         return this;
     }
     public Frame attach(JPanel panel) {
