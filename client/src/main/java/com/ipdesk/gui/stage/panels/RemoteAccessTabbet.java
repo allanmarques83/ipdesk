@@ -23,10 +23,10 @@ public class RemoteAccessTabbet extends Panel
 	public RemoteAccessTabbet(ServerConnection server_connection, Gui gui_components) {
 		super();
 
-		_TABLE_REMOTE_USERS = gui_components.table_remote_users;
+		gui_components.table_remote_users = new ActiveRemoteAccessTable(server_connection);
 		_LANGUAGE = server_connection.getLanguage();
 
-		_TABLE_REMOTE_USERS = new ActiveRemoteAccessTable(server_connection);
+		_TABLE_REMOTE_USERS = gui_components.table_remote_users;
 
 		this.defBackground(Constants.Colors.white);
 

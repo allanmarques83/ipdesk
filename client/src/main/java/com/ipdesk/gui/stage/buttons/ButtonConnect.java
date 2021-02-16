@@ -32,6 +32,7 @@ public class ButtonConnect extends Button
 
             if(command_execution.equals("disconnect_controled_user")) {
                   _SERVER_CONNECTION._OUTCOMING_USER_ACTION.closeControledId();
+                  setButtonConnectionAction("connect_to", "");
                   return true;
             }
 

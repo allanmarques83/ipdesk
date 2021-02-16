@@ -23,7 +23,6 @@ public class RemoteAccessForm extends Panel
 	public RemoteAccessForm(ServerConnection server_connection, Gui gui_components) {
             super();
             
-            
             _LANGUAGE = server_connection.getLanguage();
             
             gui_components.remote_user_id = new TextField("")

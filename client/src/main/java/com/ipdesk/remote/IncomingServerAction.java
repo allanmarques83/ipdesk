@@ -55,7 +55,9 @@ public class IncomingServerAction
 				_SERVER_CONNECTION.getControledUserId(), sender_id, password);
 
 		if(is_valid_connection) {
-			_GUI_COMPONENTS.button_connect.setButtonConnectionAction("disconnect_remote_user", sender_id);
+			_GUI_COMPONENTS.button_connect.setButtonConnectionAction(
+				"disconnect_controled_user", sender_id
+			);
 			_SERVER_CONNECTION.setControledUserId(sender_id);
 		}
 

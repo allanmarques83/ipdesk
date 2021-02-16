@@ -33,43 +33,39 @@ public class ServerConnection extends UserServer
         OUT_TRAFFIC_QUEUE = new Vector<>(1);
 	}
 
-	public void establish(String status_message, int seconds_delay) {
+	public void establish(String status_message, int seconds_delay) 
+    {
+		new Thread(() -> {
+            try {
+                int steps = seconds_delay;
+                
+                while(steps > 0) {
+                    Thread.sleep(1000);
 
-		Thread thread = new Thread()
-		{
-            @Override
-			public void run() {
-				try {
-					int steps = seconds_delay;
-					
-					while(steps > 0) {
-                        Thread.sleep(1000);
+                    _GUI_COMPONENTS.label_status.setText(
+                        String.format(getLanguage().translate(status_message), steps)
+                    );
 
-                        _GUI_COMPONENTS.label_status.setText(
-                            String.format(getLanguage().translate(status_message), steps)
-                        );
-                        _GUI_COMPONENTS.label_status.setForeground(Constants.Colors.red);
-						steps--;
-					}
-
-					InetAddress server_ip = InetAddress.getByName(getServerIp());
-					int server_port = getServerPort();
-
-					setSocketConnection(new Socket(server_ip, server_port));
-				    
-                    sendClientIdentification();
-                	
-					setServerListener();
-
-                    setOutTrafficQueue();
+                    _GUI_COMPONENTS.label_status.setForeground(Constants.Colors.red);
+                    steps--;
                 }
-				catch(Exception exception) {
-					exception.printStackTrace();
-					establish("Error to connect! Try to establish connection in: [%ds]", 30);
-				}
-			}
-		};
-		thread.start();
+
+                InetAddress server_ip = InetAddress.getByName(getServerIp());
+                int server_port = getServerPort();
+
+                setSocketConnection(new Socket(server_ip, server_port));
+                
+                sendClientIdentification();
+                
+                setServerListener();
+
+                setOutTrafficQueue();
+            }
+            catch(Exception exception) {
+                exception.printStackTrace();
+                establish("Error to connect! Try to establish connection in: [%ds]", 30);
+            }
+		}).start();
 	}
 
     public void setSocketConnection(Socket client_socket) throws Exception
@@ -88,37 +84,33 @@ public class ServerConnection extends UserServer
     }
 
 	private void setServerListener() {
-		Thread thread = new Thread()
-		{
-			public void run() 
-            {
-				try {
-                    ObjectInputStream stream = new ObjectInputStream(
-                        socket.getInputStream());
+		new Thread(() -> 
+        {
+            try {
+                ObjectInputStream stream = new ObjectInputStream(
+                    socket.getInputStream());
 
-                    while(!socket.isClosed())
-                    {
-                        TrafficModel traffic = getTrafficModel(stream);
+                while(!socket.isClosed())
+                {
+                    TrafficModel traffic = getTrafficModel(stream);
 
-                        JSONObject message = new JSONObject(
-                        	new String(traffic.getMessage()));
+                    JSONObject message = new JSONObject(
+                        new String(traffic.getMessage()));
 
-        				System.out.println(message.getString("action"));
+                    System.out.println(message.toString());
 
-                        Method action_method = IncomingServerAction.class.getMethod(
-                        	message.getString("action"), TrafficModel.class);
+                    Method action_method = IncomingServerAction.class.getMethod(
+                        message.getString("action"), TrafficModel.class);
 
-                        action_method.invoke(_INCOMING_USER_ACTION, traffic);
-                    }
-                }
-                catch(Exception exception) {
-                	// exception.printStackTrace();
-                	closeSocket();
-                    serverDownAction();
+                    action_method.invoke(_INCOMING_USER_ACTION, traffic);
                 }
             }
-        };
-        thread.start();
+            catch(Exception exception) {
+                exception.printStackTrace();
+                closeSocket();
+                serverDownAction();
+            }
+        }).start();
 	}
 
 	private TrafficModel getTrafficModel(ObjectInputStream stream) throws Exception {
@@ -126,29 +118,24 @@ public class ServerConnection extends UserServer
     }   
 
 	private void setOutTrafficQueue() {
-        Thread thread = new Thread()
+        new Thread(() -> 
         {
-            @Override
-            public void run() 
-            {
-                try {
-                    while(!socket.isClosed()) {
+            try {
+                while(!socket.isClosed()) {
 
-                        if(OUT_TRAFFIC_QUEUE.isEmpty()) {
-                            Utils.loopDelay(1000);
-                            continue;
-                        }
-                        writeOnSocket(OUT_TRAFFIC_QUEUE.get(0));
-                        OUT_TRAFFIC_QUEUE.remove(0);
+                    if(OUT_TRAFFIC_QUEUE.isEmpty()) {
+                        Utils.loopDelay(1000);
+                        continue;
                     }
-                }
-                catch (Exception exception) {
-                    closeSocket();
-                    serverDownAction();        
+                    writeOnSocket(OUT_TRAFFIC_QUEUE.get(0));
+                    OUT_TRAFFIC_QUEUE.remove(0);
                 }
             }
-        };
-        thread.start();
+            catch (Exception exception) {
+                closeSocket();
+                serverDownAction();        
+            }
+        }).start();
     }
 
     private void writeOnSocket(TrafficModel traffic) throws Exception {
