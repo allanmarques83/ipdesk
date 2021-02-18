@@ -222,5 +222,14 @@ public class Utils {
         catch(Exception e) {
             return null;
         }
-    } 
+    }
+
+    public static int getClickMousePosition(
+        double click_position, double image_resolution, int monitor
+    ) {
+        double scale = click_position/image_resolution;
+        double real_position = scale*monitor;
+
+        return (int)real_position;
+    }
 }

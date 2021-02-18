@@ -7,6 +7,7 @@ import org.json.JSONObject;
 
 import traffic_model.TrafficModel;
 import resources.Utils;
+import services.mouse.MouseEventApply;
 import resources.Constants;
 import configuration.Language;
 import gui.Gui;
@@ -15,13 +16,20 @@ import gui.Gui;
 public class IncomingServerAction
 {
 	ServerConnection _SERVER_CONNECTION;
+
 	Language _LANGUAGE;
+
 	Gui _GUI_COMPONENTS;
+
+	MouseEventApply _MOUSE_EVENT;
 
 	public IncomingServerAction(ServerConnection server_connection, Gui gui_components) {
 		_SERVER_CONNECTION = server_connection;
-		_LANGUAGE = _SERVER_CONNECTION.getLanguage();
 		_GUI_COMPONENTS = gui_components;
+
+		_LANGUAGE = _SERVER_CONNECTION.getLanguage();
+
+		_MOUSE_EVENT = new MouseEventApply();
 	}
 
 	public void successfulServerEntry(TrafficModel traffic) {
@@ -126,7 +134,7 @@ public class IncomingServerAction
 		String sender_id = message.getString("sender_id");
 
 		if(sender_id.equals(_SERVER_CONNECTION.getControledUserId())) {
-			_GUI_COMPONENTS.screen_frame._SCREEN_VIEW.startSendScreen(
+			_GUI_COMPONENTS.screen_frame._SCREEN_CAPTURE.startSendScreen(
 				message.getInt("monitor_resolution")
 			);
 		}
@@ -154,7 +162,50 @@ public class IncomingServerAction
 		String sender_id = message.getString("sender_id");
 
 		if(sender_id.equals(_SERVER_CONNECTION.getControledUserId())) {
-			_GUI_COMPONENTS.screen_frame._SCREEN_VIEW.stopSendScreen();
+			_GUI_COMPONENTS.screen_frame._SCREEN_CAPTURE.stopSendScreen();
+		}
+	}
+
+	public void setScreenResolution(TrafficModel traffic) {
+		JSONObject message = new JSONObject(new String(traffic.getMessage()));
+
+		String sender_id = message.getString("sender_id");
+		int resolution = message.getInt("resolution");
+
+		if(sender_id.equals(_SERVER_CONNECTION.getControledUserId())) {
+			_GUI_COMPONENTS.screen_frame._SCREEN_CAPTURE.setScreenResolution(resolution);
+		}
+	}
+
+	public void setScreenQuality(TrafficModel traffic) {
+		JSONObject message = new JSONObject(new String(traffic.getMessage()));
+
+		String sender_id = message.getString("sender_id");
+		float quality = message.getFloat("quality");
+
+		if(sender_id.equals(_SERVER_CONNECTION.getControledUserId())) {
+			_GUI_COMPONENTS.screen_frame._SCREEN_CAPTURE.setScreenQuality(quality);
+		}
+	}
+
+	public void mouseScreenEvent(TrafficModel traffic) {
+		JSONObject message = new JSONObject(new String(traffic.getMessage()));
+
+		String sender_id = message.getString("sender_id");
+		
+		if(sender_id.equals(_SERVER_CONNECTION.getControledUserId())) {
+			String mouse_event_type = message.getString("mouse_event_type");
+
+			_MOUSE_EVENT._MOUSE_ACTIONS.get(mouse_event_type).accept(new Object[]{
+				message.getInt("from_x"),
+				message.getInt("from_y"),
+				message.getInt("to_x"),
+				message.getInt("to_y"),
+				message.getInt("button_mask"),
+				message.getInt("screen_view_width"),
+				message.getInt("screen_view_height"),
+			});
+
 		}
 	}
 }

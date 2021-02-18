@@ -10,23 +10,24 @@ import gui.swing.Frame;
 import gui.swing.Panel;
 import remote.ServerConnection;
 import resources.Constants;
-import services.screen.ScreenView;
+import services.screen.ScreenCapture;
 
 public class Screen extends Frame 
 {
 	ServerConnection _SERVER_CONNECTION;
 	Language _LANGUAGE;
-	public ScreenView _SCREEN_VIEW;
+	public ScreenCapture _SCREEN_CAPTURE;
 
 	public ScreenTabsPanel _SCREEN_TABS;
 
-	public Screen(ServerConnection server_connection) {
+	public Screen(ServerConnection server_connection) 
+	{
 		_SERVER_CONNECTION = server_connection;
 		_LANGUAGE = _SERVER_CONNECTION.getLanguage();
 
-		_SCREEN_VIEW = new ScreenView(server_connection);
+		_SCREEN_CAPTURE = new ScreenCapture(server_connection);
 
-		_SCREEN_TABS = new ScreenTabsPanel(_LANGUAGE);
+		_SCREEN_TABS = new ScreenTabsPanel(_SERVER_CONNECTION);
 		_SCREEN_TABS.setCloseTab(params -> this.closeTab(params));
 
 
@@ -34,7 +35,7 @@ public class Screen extends Frame
             .defTitle("Screen View")
             .defDefaultCloseOperation( JFrame.HIDE_ON_CLOSE )
             .defLocationRelativeTo(null)
-            .defBounds(0,0,1024, 600)
+            .defBounds(0,0,800, 600)
             .attach(getMainPanel())
             .onCloseEvent(params -> _SCREEN_TABS.closeAllTabs(), null)
             .defVisible( false );

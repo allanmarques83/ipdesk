@@ -18,29 +18,29 @@ import org.junit.Test;
  */
 public class MainTest 
 {
-    Main main;
+    // Main main;
     
-    @Mock
-    ServerConnection serverConnectionMock;
+    // @Mock
+    // ServerConnection serverConnectionMock;
 
-    @Before
-	public void setUp() {
-		MockitoAnnotations.initMocks(this);
+    // @Before
+	// public void setUp() {
+	// 	MockitoAnnotations.initMocks(this);
 
-        main = new Main();
-	}
+    //     main = new Main();
+	// }
 
-    @Test
-    public void shouldEstablishConnectionToServer()
-    {
-        // doNothing().when(serverConnectionMock).establish(
-        //     "Try to establish connection in: [%ds]", 3);
-        main._server_connection = serverConnectionMock;
+    // @Test
+    // public void shouldEstablishConnectionToServer()
+    // {
+    //     // doNothing().when(serverConnectionMock).establish(
+    //     //     "Try to establish connection in: [%ds]", 3);
+    //     main._server_connection = serverConnectionMock;
 
-        main.start();
+    //     main.start();
 
-        Mockito.verify(serverConnectionMock, times(1)).establish(
-            "Try to establish connection in: [%ds]", 3
-        );
-    }
+    //     Mockito.verify(serverConnectionMock, times(1)).establish(
+    //         "Try to establish connection in: [%ds]", 3
+    //     );
+    // }
 }

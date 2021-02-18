@@ -5,6 +5,7 @@ import java.net.*;
 import java.lang.reflect.Method;
 import java.util.Vector;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import org.json.JSONObject;
 
@@ -15,6 +16,8 @@ import traffic_model.TrafficModel;
 
 public class ServerConnection extends UserServer
 {
+    Logger _LOGGER;
+
     Gui _GUI_COMPONENTS;
     public OutcomingUserAction _OUTCOMING_USER_ACTION;
     public IncomingServerAction _INCOMING_USER_ACTION;
@@ -26,6 +29,7 @@ public class ServerConnection extends UserServer
 
 
 	public ServerConnection(Gui gui_components) {
+        _LOGGER = Logger.getLogger("com.ipdesk");
         _GUI_COMPONENTS = gui_components;
         _INCOMING_USER_ACTION = new IncomingServerAction(this, _GUI_COMPONENTS);
         _OUTCOMING_USER_ACTION = new OutcomingUserAction(this, _GUI_COMPONENTS);
@@ -49,9 +53,13 @@ public class ServerConnection extends UserServer
                     _GUI_COMPONENTS.label_status.setForeground(Constants.Colors.red);
                     steps--;
                 }
+                String ip = getServerIp();
 
-                InetAddress server_ip = InetAddress.getByName(getServerIp());
+                InetAddress server_ip = InetAddress.getByName(ip);
                 int server_port = getServerPort();
+                _LOGGER.info(String.format(
+                    "try to establish connection with server ip %s", ip)
+                );
 
                 setSocketConnection(new Socket(server_ip, server_port));
                 

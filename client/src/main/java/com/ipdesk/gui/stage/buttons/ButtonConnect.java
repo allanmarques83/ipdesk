@@ -24,6 +24,7 @@ public class ButtonConnect extends Button
 	}
 
 	public boolean fireActionButton(String remote_id, String password) {
+            // _SERVER_CONNECTION._OUTCOMING_USER_ACTION.getScreenView("123", 1);
             String command_execution = this.getActionCommand();
 
             if(command_execution.equals("connect_to")) {

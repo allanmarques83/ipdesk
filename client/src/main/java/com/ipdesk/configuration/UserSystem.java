@@ -30,7 +30,7 @@ public class UserSystem {
         setLanguage(_configuration.optString("system_language", "EN"));
         setPassword(_configuration.optString("system_password", Utils.getRandomPassword()));
         setLogoFilePath(_configuration.optString("system_logo", "images/ipdesk.jpg"));
-        setServerIp(_configuration.optString("server_ip", "127.0.1.1"));
+        setServerIp(_configuration.optString("server_ip", "192.168.1.35"));
         // setServerIp(_configuration.optString("server_ip", "198.148.118.52"));
         setServerPort(_configuration.optInt("server_port", 1527));
         setBlockedsIds(_configuration.optString("blockeds_ids", "[]"));

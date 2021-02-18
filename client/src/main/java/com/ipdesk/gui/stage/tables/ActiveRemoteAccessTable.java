@@ -134,7 +134,7 @@ public class ActiveRemoteAccessTable extends Table
                     }
                     if(colunm_name.equals("SC:")) {
                         _SERVER_CONNECTION._OUTCOMING_USER_ACTION.getScreenView(
-                            remote_id, (Constants.Monitor.width-25));
+                            remote_id, 1024);
                     }
                           
                 }

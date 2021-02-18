@@ -11,6 +11,7 @@ import org.json.JSONObject;
 
 import configuration.Language;
 import gui.swing.Panel;
+import remote.ServerConnection;
 import resources.Constants;
 
 public class ScreenTabsPanel extends Panel
@@ -18,10 +19,14 @@ public class ScreenTabsPanel extends Panel
 	JTabbedPane tab_remote_ids;
 	Map<String, ScreenTab> tabs;
 
+	ServerConnection _SERVER_CONNECTION;
+
 	Consumer<Object[]> set_close_tab;
 
-	public ScreenTabsPanel(Language language) {
+	public ScreenTabsPanel(ServerConnection server_connection) {
 		super();
+
+		_SERVER_CONNECTION = server_connection;
 
 		this.defBackground(Constants.Colors.mercury);
 
@@ -42,7 +47,7 @@ public class ScreenTabsPanel extends Panel
 	}
 
 	public void addTab(String remote_id) {
-		ScreenTab screen_tab = new ScreenTab(remote_id);
+		ScreenTab screen_tab = new ScreenTab(remote_id, _SERVER_CONNECTION);
 
 		this.tab_remote_ids.addTab(remote_id, null,screen_tab, null);
 

@@ -7,7 +7,7 @@ import remote.ServerConnection;
 import resources.Utils;
 import resources.Constants;
 
-public class ScreenView
+public class ScreenCapture
 {
 	ServerConnection _SERVER_CONNECTION;
 	private ScreenGenerator screen_generator;
@@ -16,8 +16,9 @@ public class ScreenView
 	
 	private boolean SEND_SCREEN = false;
 	private float _SCREEN_QUALITY;
+	private int _SCREEN_RESOLUTION;
 
-	public ScreenView(ServerConnection server_connection) {
+	public ScreenCapture(ServerConnection server_connection) {
 		_SERVER_CONNECTION = server_connection;
 
 		screen_generator = new ScreenGenerator();
@@ -29,6 +30,7 @@ public class ScreenView
 
 	public void startSendScreen(int monitor_resolution) {
 		SEND_SCREEN = true;
+		_SCREEN_RESOLUTION = monitor_resolution;
 
 		Thread thread = new Thread()
 		{
@@ -38,11 +40,11 @@ public class ScreenView
 				try {
 					while(SEND_SCREEN && _SERVER_CONNECTION.getControledUserId() != null) {
 						byte[] screen = screen_generator.getCompressBytesScreen(
-							monitor_resolution, _SCREEN_QUALITY);
+							_SCREEN_RESOLUTION, _SCREEN_QUALITY);
 						
 						_SERVER_CONNECTION._OUTCOMING_USER_ACTION.sendScreen(screen);
 
-						int delay_factor = _SERVER_CONNECTION.getOutTrafficQueueSize()*750;
+						int delay_factor = _SERVER_CONNECTION.getOutTrafficQueueSize()*400;
 
 						Utils.loopDelay(delay_factor);
 					}
@@ -72,8 +74,16 @@ public class ScreenView
 	public void setScreenQuality(float quality) {
 		_SCREEN_QUALITY = quality;
 	}
+	
+	public void setScreenResolution(int resolution) {
+		_SCREEN_RESOLUTION = resolution;
+	}
 
 	public float getScreenQuality() {
 		return _SCREEN_QUALITY;
+	}
+	
+	public int getScreenResolution() {
+		return _SCREEN_RESOLUTION;
 	}
 }

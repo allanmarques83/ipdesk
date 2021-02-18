@@ -1,8 +1,6 @@
 package gui.swing;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Dimension;
+import java.awt.*;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.ImageIcon;
@@ -49,8 +47,16 @@ public class Label extends JLabel
     public JScrollPane getScroll() {
     	scroll = new JScrollPane();
 		scroll.getViewport().setBorder(null);
-		scroll.setViewportView(this);
-		scroll.setMinimumSize(new Dimension(1024,600));
+		scroll.getViewport().setLayout(new GridBagLayout());
+		GridBagConstraints grid = new GridBagConstraints();
+		grid.weightx = 0;
+        grid.weighty = 1;
+		grid.gridx = 0;
+		grid.gridy = 0;
+		grid.anchor = GridBagConstraints.CENTER;
+		scroll.getViewport().add(this, grid);
+		// scroll.setViewportView(this);
+		// scroll.setMinimumSize(new Dimension(800,600));
 
 		return scroll;
     }

@@ -15,7 +15,8 @@ public class Utils
     }
 
 	public static String getServerIp() throws Exception {
-		return InetAddress.getLocalHost().getHostAddress();
+		// return InetAddress.getLocalHost().getHostAddress();
+        return "192.168.1.35";
 	}
 
 	public static String getFileContent(String name_file, 

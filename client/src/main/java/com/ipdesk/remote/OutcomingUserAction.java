@@ -58,6 +58,47 @@ public class OutcomingUserAction
 					.toString().getBytes(), null);
 	}
 
+	public void setScreenResolution(String remote_id, int resolution) {
+		_SERVER_CONNECTION.sendTraffic(new JSONObject()
+			.put("destination_id", remote_id)
+				.put("action", "setScreenResolution")
+					.put("resolution", resolution)
+						.toString().getBytes(), null);
+	}
+	
+	public void setScreenQuality(String remote_id, String quality) {
+		_SERVER_CONNECTION.sendTraffic(new JSONObject()
+			.put("destination_id", remote_id)
+				.put("action", "setScreenQuality")
+					.put("quality", quality.equals("Normal") ? 0.4f : 0.7f)
+						.toString().getBytes(), null);
+	}
+
+	public void mouseScreenEvent(
+		String remote_id, 
+		String mouse_event_type, 
+		int from_x, 
+		int from_y, 
+		int to_x, 
+		int to_y, 
+		int button_mask,
+		int screen_view_width,
+		int screen_view_height
+	) {
+		_SERVER_CONNECTION.sendTraffic(new JSONObject()
+			.put("destination_id", remote_id)
+			.put("action", "mouseScreenEvent")
+			.put("mouse_event_type", mouse_event_type)
+			.put("from_x", from_x)
+			.put("from_y", from_y)
+			.put("to_x", to_x)
+			.put("to_y", to_y)
+			.put("button_mask", button_mask)
+			.put("screen_view_width", screen_view_width)
+			.put("screen_view_height", screen_view_height)
+			.toString().getBytes(), null);
+	}
+
 	public void closeControledId() {
 
 		String controled_id = _SERVER_CONNECTION.getControledUserId();
