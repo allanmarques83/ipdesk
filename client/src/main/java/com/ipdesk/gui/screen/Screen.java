@@ -47,7 +47,7 @@ public class Screen extends Frame
             .defBackground(Constants.Colors.mercury);
 
         stage_panel
-	        .fill(GridBagConstraints.HORIZONTAL)
+	        .fill(GridBagConstraints.BOTH)
 	        .grid(0,0)
 	        .weight(1,1)
 	        .anchor(GridBagConstraints.NORTH)

@@ -4,15 +4,13 @@ import java.awt.GridBagConstraints;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
-
 import javax.swing.JTabbedPane;
-
 import org.json.JSONObject;
 
-import configuration.Language;
 import gui.swing.Panel;
 import remote.ServerConnection;
 import resources.Constants;
+import services.screen.keyboard.KeyboardEventScreen;
 
 public class ScreenTabsPanel extends Panel
 {
@@ -31,6 +29,9 @@ public class ScreenTabsPanel extends Panel
 		this.defBackground(Constants.Colors.mercury);
 
 		tab_remote_ids = new JTabbedPane();
+		tab_remote_ids.addKeyListener(
+			new KeyboardEventScreen(params -> keyboardEvent(params))
+		);
 		tabs = new HashMap<>();
 	}
 
@@ -40,7 +41,7 @@ public class ScreenTabsPanel extends Panel
 			.fill(GridBagConstraints.BOTH)
 			.grid(0,0)
 			.weight(1,1)
-			.anchor(GridBagConstraints.CENTER)
+			.anchor(GridBagConstraints.NORTH)
 			.attach(tab_remote_ids, "tab_remote_ids");
 
 		return this;
@@ -90,5 +91,21 @@ public class ScreenTabsPanel extends Panel
 
 		if(screen_tab != null)
 			screen_tab.setImage(image);
+	}
+
+	public void keyboardEvent(Object[] args) {
+		String remote_id = tab_remote_ids.getTitleAt(
+			tab_remote_ids.getSelectedIndex()
+		);
+
+		_SERVER_CONNECTION._OUTCOMING_USER_ACTION.keyboardEvent(
+			remote_id,
+			args[0].toString(),
+			(int)args[1]
+		);
+	}
+
+	public void setTabbetFocus() {
+		tab_remote_ids.grabFocus();
 	}
 }

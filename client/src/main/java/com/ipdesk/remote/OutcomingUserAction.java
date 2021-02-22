@@ -59,6 +59,8 @@ public class OutcomingUserAction
 	}
 
 	public void setScreenResolution(String remote_id, int resolution) {
+		_GUI_COMPONENTS.screen_frame._SCREEN_TABS.setTabbetFocus();
+
 		_SERVER_CONNECTION.sendTraffic(new JSONObject()
 			.put("destination_id", remote_id)
 				.put("action", "setScreenResolution")
@@ -67,6 +69,8 @@ public class OutcomingUserAction
 	}
 	
 	public void setScreenQuality(String remote_id, String quality) {
+		_GUI_COMPONENTS.screen_frame._SCREEN_TABS.setTabbetFocus();
+
 		_SERVER_CONNECTION.sendTraffic(new JSONObject()
 			.put("destination_id", remote_id)
 				.put("action", "setScreenQuality")
@@ -97,6 +101,14 @@ public class OutcomingUserAction
 			.put("screen_view_width", screen_view_width)
 			.put("screen_view_height", screen_view_height)
 			.toString().getBytes(), null);
+	}
+
+	public void keyboardEvent(String remote_id, String keyboard_event, int key_code) {
+		_SERVER_CONNECTION.sendTraffic(new JSONObject()
+			.put("destination_id", remote_id)
+				.put("action", "keyboardEvent")
+					.put("keyboard_event", keyboard_event)
+						.put("key_code", key_code).toString().getBytes(), null);
 	}
 
 	public void closeControledId() {

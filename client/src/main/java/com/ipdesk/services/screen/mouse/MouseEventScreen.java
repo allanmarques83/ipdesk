@@ -1,4 +1,4 @@
-package services.mouse;
+package services.screen.mouse;
 
 import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
@@ -7,6 +7,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelListener;
 import java.util.function.Consumer;
+
 
 import java.awt.Point;
 
@@ -73,18 +74,19 @@ public class MouseEventScreen
         return new MouseMotionListener() 
         {
             public void mouseMoved(MouseEvent e) {
-                // int BUTTON_MASK = InputEvent.getMaskForButton(
-                //     getButtonMask(e.getButton())
-                // );
+                int BUTTON_MASK = InputEvent.getMaskForButton(
+                    getButtonMask(e.getButton())
+                );
 
-                // _MOUSE_EVENT.accept(new Object[]{
-                //     "MOUSE_MOVE_EVENT",
-                //     0,
-                //     0,
-                //     e.getX(),
-                //     e.getY(),
-                //     BUTTON_MASK,
-                // });
+                _MOUSE_EVENT.accept(new Object[]{
+                    "MOUSE_MOVE_EVENT",
+                    0,
+                    0,
+                    e.getX(),
+                    e.getY(),
+                    BUTTON_MASK,
+                });
+                // Utils.loopDelay(500);
             }
             public void mouseDragged(MouseEvent e) {
                 int BUTTON_MASK = InputEvent.getMaskForButton(

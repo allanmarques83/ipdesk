@@ -3,6 +3,8 @@ package resources;
 import javax.swing.*;
 import java.io.*;
 import java.net.*;
+import java.awt.Robot;
+import java.awt.AWTException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.Deflater;
@@ -231,5 +233,14 @@ public class Utils {
         double real_position = scale*monitor;
 
         return (int)real_position;
+    }
+
+    public static Robot getRobotInstance() {
+        try {
+            return new Robot();
+        }
+        catch(AWTException exception) {
+            return null;
+        }
     }
 }

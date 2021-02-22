@@ -1,8 +1,7 @@
-package services.mouse;
+package services.screen.mouse;
 
 import java.awt.Robot;
 import java.awt.event.InputEvent;
-import java.awt.AWTException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -20,7 +19,7 @@ public class MouseEventApply
     int _MONITOR_RESOLUTION_H;
     
     public MouseEventApply() {
-        _ROBOT = getRobotInstance();
+        _ROBOT = Utils.getRobotInstance();
 
         _MOUSE_ACTIONS = new HashMap<String, Consumer<Object[]>>();
 
@@ -53,6 +52,7 @@ public class MouseEventApply
         _ROBOT.mousePress( button_mask );
         _ROBOT.delay(25);
         _ROBOT.mouseRelease( button_mask );
+        _ROBOT.mouseRelease( InputEvent.BUTTON1_DOWN_MASK );
     }
 
     public void mouseDraggedEvent(Object[] mouse_args) 
@@ -110,21 +110,12 @@ public class MouseEventApply
         );
 
         _ROBOT.mouseMove(click_position_x, click_position_y);
-        _ROBOT.delay(25);
+        // _ROBOT.delay(25);
     }
 
     public void mouseWhellEvent(Object[] mouse_args) 
     {
         int scroll = (int)mouse_args[4];
 		_ROBOT.mouseWheel((scroll*2));
-    }
-
-    private Robot getRobotInstance() {
-        try {
-            return new Robot();
-        }
-        catch(AWTException exception) {
-            return null;
-        }
     }
 }

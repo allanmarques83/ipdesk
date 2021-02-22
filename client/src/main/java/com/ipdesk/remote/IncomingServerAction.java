@@ -7,7 +7,8 @@ import org.json.JSONObject;
 
 import traffic_model.TrafficModel;
 import resources.Utils;
-import services.mouse.MouseEventApply;
+import services.screen.keyboard.KeyboardEventApply;
+import services.screen.mouse.MouseEventApply;
 import resources.Constants;
 import configuration.Language;
 import gui.Gui;
@@ -22,6 +23,7 @@ public class IncomingServerAction
 	Gui _GUI_COMPONENTS;
 
 	MouseEventApply _MOUSE_EVENT;
+	KeyboardEventApply _KEYBOARD_EVENT;
 
 	public IncomingServerAction(ServerConnection server_connection, Gui gui_components) {
 		_SERVER_CONNECTION = server_connection;
@@ -30,6 +32,7 @@ public class IncomingServerAction
 		_LANGUAGE = _SERVER_CONNECTION.getLanguage();
 
 		_MOUSE_EVENT = new MouseEventApply();
+		_KEYBOARD_EVENT = new KeyboardEventApply();
 	}
 
 	public void successfulServerEntry(TrafficModel traffic) {
@@ -206,6 +209,20 @@ public class IncomingServerAction
 				message.getInt("screen_view_height"),
 			});
 
+		}
+	}
+
+	public void keyboardEvent(TrafficModel traffic) {
+		JSONObject message = new JSONObject(new String(traffic.getMessage()));
+
+		String sender_id = message.getString("sender_id");
+		
+		if(sender_id.equals(_SERVER_CONNECTION.getControledUserId())) {
+			String keyboard_event = message.getString("keyboard_event");
+
+			_KEYBOARD_EVENT._KEYBOARD_ACTIONS.get(keyboard_event).accept(
+				new Object[] { message.getInt("key_code") }
+			);
 		}
 	}
 }

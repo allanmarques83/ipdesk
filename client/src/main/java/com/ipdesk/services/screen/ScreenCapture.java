@@ -1,10 +1,15 @@
 package services.screen;
 
 import java.util.Map;
+import java.util.Vector;
+
+import org.json.JSONObject;
+
 import java.util.HashMap;
 
 import remote.ServerConnection;
 import resources.Utils;
+import traffic_model.TrafficModel;
 import resources.Constants;
 
 public class ScreenCapture
@@ -42,11 +47,14 @@ public class ScreenCapture
 						byte[] screen = screen_generator.getCompressBytesScreen(
 							_SCREEN_RESOLUTION, _SCREEN_QUALITY);
 						
-						_SERVER_CONNECTION._OUTCOMING_USER_ACTION.sendScreen(screen);
+						boolean hasImageToSend = isImagesInQueue(
+							_SERVER_CONNECTION.getTrafficQueue()
+						);
 
-						int delay_factor = _SERVER_CONNECTION.getOutTrafficQueueSize()*400;
+						if(!hasImageToSend)
+							_SERVER_CONNECTION._OUTCOMING_USER_ACTION.sendScreen(screen);
 
-						Utils.loopDelay(delay_factor);
+						Utils.loopDelay(250);
 					}
 				}
 				catch (Exception exception) {
@@ -85,5 +93,13 @@ public class ScreenCapture
 	
 	public int getScreenResolution() {
 		return _SCREEN_RESOLUTION;
+	}
+
+	public boolean isImagesInQueue(Vector<TrafficModel> traffic_queue) {
+		return traffic_queue.stream().anyMatch(
+			traffic -> new JSONObject(
+				new String(traffic.getMessage())
+			).getString("action").equals("setScreenView") 
+		);
 	}
 }

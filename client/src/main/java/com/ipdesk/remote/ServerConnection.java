@@ -132,7 +132,7 @@ public class ServerConnection extends UserServer
                 while(!socket.isClosed()) {
 
                     if(OUT_TRAFFIC_QUEUE.isEmpty()) {
-                        Utils.loopDelay(1000);
+                        Utils.loopDelay(300);
                         continue;
                     }
                     writeOnSocket(OUT_TRAFFIC_QUEUE.get(0));
@@ -181,6 +181,10 @@ public class ServerConnection extends UserServer
 
     public int getOutTrafficQueueSize() {
         return OUT_TRAFFIC_QUEUE.size();
+    }
+
+    public Vector<TrafficModel> getTrafficQueue() {
+        return OUT_TRAFFIC_QUEUE;
     }
 
     public void closeSocket() {
