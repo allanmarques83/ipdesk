@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.Enumeration;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
@@ -25,7 +27,8 @@ public class Utils {
 
 	public static ImageIcon toIcon(String path) {
 		java.net.URL imgURL = Main.class.getResource(path);
-        return new ImageIcon(imgURL);
+
+		return imgURL != null ? new ImageIcon(imgURL) : null;
 	}
 
 	public static String getRandomPassword() {
@@ -242,5 +245,19 @@ public class Utils {
         catch(AWTException exception) {
             return null;
         }
+    }
+
+    public static String getExpression(String regex, String search) {
+        Pattern pattern = Pattern.compile(regex);
+		Matcher matcher = pattern.matcher(search);
+
+		matcher.find();
+		
+		try {
+			return matcher.group(1);
+		}
+		catch(IllegalStateException e) {	
+			return "";
+		}
     }
 }

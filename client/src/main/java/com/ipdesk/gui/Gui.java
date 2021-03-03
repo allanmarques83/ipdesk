@@ -2,6 +2,7 @@ package gui;
 
 import javax.swing.JTabbedPane;
 
+import gui.file_manager.FileManager;
 import gui.screen.Screen;
 import gui.stage.Stage;
 import gui.stage.buttons.ButtonConnect;
@@ -19,4 +20,5 @@ public class Gui {
     public Label label_status;
     public Screen screen_frame;
     public Stage stage_frame;
+    public FileManager file_manager;
 }
