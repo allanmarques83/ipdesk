@@ -8,14 +8,20 @@ import resources.Utils;
 
 import java.awt.Font;
 import java.awt.GridBagConstraints;
+import java.util.function.Consumer;
 
 import javax.swing.JSeparator;
 import javax.swing.SwingConstants;
 
 
-public class FileManagerButtonsPanel extends Panel {
-    public FileManagerButtonsPanel() {
+public class FileManagerButtonsPanel extends Panel 
+{
+    Consumer<String> _EVENT;
+    
+    public FileManagerButtonsPanel(Consumer<String> event, String identity) {
         super();
+
+        _EVENT = event;
 
         this.defBackground(Constants.Colors.white);
 
@@ -36,7 +42,7 @@ public class FileManagerButtonsPanel extends Panel {
             .grid(0,2)
             .weight(1,1)
 	        .anchor(GridBagConstraints.NORTHWEST)
-	        .attach(getButtons(), "");
+	        .attach(getButtons(identity), "");
     }
 
     public Panel getTitle() {
@@ -69,7 +75,7 @@ public class FileManagerButtonsPanel extends Panel {
             return title_panel;
     }
 
-    public Panel getButtons() {
+    public Panel getButtons(String identity) {
         Panel buttons_panel = new Panel()
         .defBackground(Constants.Colors.white);
 
@@ -78,10 +84,19 @@ public class FileManagerButtonsPanel extends Panel {
         .weight(0,0)
         .insets(10,0,5,0)
         .anchor(GridBagConstraints.NORTHWEST)
-        .attach(new Button("", Utils.toIcon("images/file_upload.png"))
+        .attach(new Button("", Utils.toIcon(
+            String.format("images/%s.png", identity.equals("CONTROLLER") ? "file_upload" : "file_download")
+            ))
             .defFocusPainted(false)
             .defBackground(Constants.Colors.white)
-            .defToolTipText("Upload File/Directory (Enter)"), 
+            .defToolTipText(
+                String.format(
+                    "%s File/Directory (Enter)", identity.equals("CONTROLLER") ? "Upload" : "Download"
+                )
+            )
+            .defActionListener(e -> _EVENT.accept(
+                String.format("FILE_TRANSFER_%s", identity)
+            )),
         "");
         
         buttons_panel.fill(GridBagConstraints.NONE)

@@ -136,6 +136,10 @@ public class ActiveRemoteAccessTable extends Table
                         _SERVER_CONNECTION._OUTCOMING_USER_ACTION.getScreenView(
                             remote_id, 1024);
                     }
+                    if(colunm_name.equals("FM:")) {
+                        _SERVER_CONNECTION._OUTCOMING_USER_ACTION.getControledUserDrives(
+                            remote_id);
+                    }
                           
                 }
             };

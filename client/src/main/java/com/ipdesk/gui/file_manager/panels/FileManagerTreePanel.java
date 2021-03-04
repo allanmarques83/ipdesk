@@ -1,7 +1,7 @@
 package gui.file_manager.panels;
 
 import java.util.Iterator;
-
+import java.util.function.Consumer;
 import java.awt.GridBagConstraints;
 
 import javax.swing.JScrollPane;
@@ -14,23 +14,27 @@ import javax.swing.tree.TreeSelectionModel;
 
 import org.json.JSONArray;
 
-import gui.file_manager.tree.FileManagerTreePaths;
+import gui.file_manager.tree.FileManagerTree;
 import gui.swing.Panel;
 import resources.Constants;
 import services.file_manager.FileManagerSource;
 
 public class FileManagerTreePanel extends Panel 
 {
-    FileManagerTreePaths _TREE_CONTROLLER;
-    FileManagerTreePaths _TREE_CONTROLLED;
+    FileManagerTree _TREE_CONTROLLER;
+    FileManagerTree _TREE_CONTROLLED;
+
+    Consumer<String> _EVENT;
     
-    public FileManagerTreePanel() {
+    public FileManagerTreePanel(Consumer<String> event) {
         super();
+
+        _EVENT = event;
 
         this.defBackground(Constants.Colors.mercury);
 
-        _TREE_CONTROLLER = new FileManagerTreePaths();
-        _TREE_CONTROLLED = new FileManagerTreePaths();
+        _TREE_CONTROLLER = new FileManagerTree();
+        _TREE_CONTROLLED = new FileManagerTree();
 
         _TREE_CONTROLLER.addTreeSelectionListener(
             getSelectionListener(_TREE_CONTROLLER, _TREE_CONTROLLED, "_TREE_CONTROLLER")
@@ -40,7 +44,7 @@ public class FileManagerTreePanel extends Panel
         );
 
         fillTreeWithDrives(
-            _TREE_CONTROLLER, FileManagerSource.getDrives()
+            "_TREE_CONTROLLER", FileManagerSource.getDrives()
         );
         
         buildPanel();
@@ -78,7 +82,6 @@ public class FileManagerTreePanel extends Panel
             }
 
             DefaultMutableTreeNode selected_node = (DefaultMutableTreeNode)tree_selected.getLastSelectedPathComponent();
-
             
             if(selected_node != null) { 
                 executeSelectionEvent(
@@ -88,30 +91,42 @@ public class FileManagerTreePanel extends Panel
         });
     }
 
-    public boolean executeSelectionEvent(DefaultMutableTreeNode selected_node, String tree_indentity) {
-        String text_node = selected_node.getUserObject().toString();
+    public boolean executeSelectionEvent(DefaultMutableTreeNode selected_node, String tree_name) {
+        String text_node = selected_node.getUserObject().toString().replaceAll(
+            "<(.+?):(.+?)>",""
+        );
 
-        if(tree_indentity.equals("_TREE_CONTROLLER") && !text_node.contains("<file:")) 
+        if(tree_name.equals("_TREE_CONTROLLER") && !text_node.contains("<file:")) 
         {
-
-            JSONArray array = FileManagerSource.getDirContent(
-                text_node.replaceAll("<(.+?):(.+?)>","")
-            );
-            Iterator<Object> iterator = array.iterator();
-
-            while (iterator.hasNext()) {
-                selected_node.add(new DefaultMutableTreeNode( iterator.next().toString() ) );
-            }
-
-            _TREE_CONTROLLER.expandPath(new TreePath(selected_node.getPath()));
-            return true;
+            JSONArray array = FileManagerSource.getDirContent(text_node);
+            expandPathTree(tree_name, array);
         }
-
+        if(tree_name.equals("_TREE_CONTROLLED") && !text_node.contains("<file:")) {
+            _EVENT.accept(
+                String.format("<GET_CONTROLLED_DIRECTORY_CONTENT:%s>", text_node)
+            );
+        }
         return false;
     }
 
-    public void fillTreeWithDrives(JTree tree, JSONArray array) 
+    public void expandPathTree(String tree_name, JSONArray array) {
+        JTree tree = tree_name.equals("_TREE_CONTROLLER") ? _TREE_CONTROLLER : _TREE_CONTROLLED;
+
+        DefaultMutableTreeNode selected_node = (DefaultMutableTreeNode)tree.getLastSelectedPathComponent();
+
+        Iterator<Object> iterator = array.iterator();
+
+        while (iterator.hasNext()) {
+            selected_node.add(new DefaultMutableTreeNode( iterator.next().toString() ) );
+        }
+
+        tree.expandPath(new TreePath(selected_node.getPath()));
+    }
+
+    public void fillTreeWithDrives(String tree_name, JSONArray array) 
     {
+        JTree tree = tree_name.equals("_TREE_CONTROLLER") ? _TREE_CONTROLLER : _TREE_CONTROLLED;
+
         DefaultTreeModel model = (DefaultTreeModel)tree.getModel();
 		DefaultMutableTreeNode root = (DefaultMutableTreeNode)model.getRoot();
 

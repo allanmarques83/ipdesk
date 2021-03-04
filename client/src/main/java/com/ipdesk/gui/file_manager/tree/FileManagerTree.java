@@ -7,8 +7,8 @@ import javax.swing.JTree;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
-public class FileManagerTreePaths extends JTree {
-    public FileManagerTreePaths() {
+public class FileManagerTree extends JTree {
+    public FileManagerTree() {
         super(new DefaultMutableTreeNode());
 
         this.setCellRenderer(new FileManagerRendererTree());

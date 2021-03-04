@@ -3,11 +3,11 @@ package main;
 import javax.swing.ToolTipManager;
 
 import gui.Gui;
-import gui.file_manager.FileManager;
 import gui.screen.Screen;
 import gui.stage.Stage;
 import remote.ServerConnection;
 import resources.Utils;
+import services.file_manager.FileManagerSource;
 
 
 public class Main
@@ -22,13 +22,14 @@ public class Main
         _gui_components = new Gui();
         
         _server_connection = new ServerConnection(_gui_components);
-        // _gui_components.stage_frame = new Stage(_gui_components, _server_connection);
-        // _gui_components.screen_frame = new Screen(_server_connection);
-        _gui_components.file_manager = new FileManager(_server_connection);
+        _gui_components.stage_frame = new Stage(_gui_components, _server_connection);
+        _gui_components.screen_frame = new Screen(_server_connection);
+        _gui_components.file_manager = new FileManagerSource(_server_connection);
+        // _gui_components.file_manager.setVisible(true);
     }
     
     public void start() {
-        // _server_connection.establish("Try to establish connection in: [%ds]", 3);
+        _server_connection.establish("Try to establish connection in: [%ds]", 3);
     }
 
     public static void main(String[] args) {

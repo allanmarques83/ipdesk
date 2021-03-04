@@ -3,10 +3,13 @@ package remote;
 import java.util.Set;
 import java.util.Date;
 import java.text.SimpleDateFormat;
+
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import traffic_model.TrafficModel;
 import resources.Utils;
+import services.file_manager.FileManagerSource;
 import services.screen.keyboard.KeyboardEventApply;
 import services.screen.mouse.MouseEventApply;
 import resources.Constants;
@@ -222,6 +225,70 @@ public class IncomingServerAction
 
 			_KEYBOARD_EVENT._KEYBOARD_ACTIONS.get(keyboard_event).accept(
 				new Object[] { message.getInt("key_code") }
+			);
+		}
+	}
+
+	public void getControledUserDrives(TrafficModel traffic) 
+	{
+		JSONObject message = new JSONObject(new String(traffic.getMessage()));
+
+		String sender_id = message.getString("sender_id");
+		
+		if(sender_id.equals(_SERVER_CONNECTION.getControledUserId())) {
+			JSONArray drives = FileManagerSource.getDrives();
+			
+			_SERVER_CONNECTION.sendTraffic(new JSONObject()
+				.put("destination_id", sender_id)
+					.put("sender_id", _SERVER_CONNECTION.getUserId())
+						.put("action","setControledUserDrives")
+							.put("drives", drives.toString())
+								.toString()
+									.getBytes(), null);
+		}
+	}
+
+	public void setControledUserDrives(TrafficModel traffic) {
+		JSONObject message = new JSONObject(new String(traffic.getMessage()));
+
+		String sender_id = message.getString("sender_id");
+
+		if(_SERVER_CONNECTION.getRemoteUsersIds().contains(sender_id)) {
+			_GUI_COMPONENTS.file_manager.setVisible(true, sender_id);
+
+			_GUI_COMPONENTS.file_manager.setControledUserDrives(
+				new JSONArray(message.getString("drives"))
+			);
+		}
+	}
+
+	public void getControledUserDirectory(TrafficModel traffic) {
+		JSONObject message = new JSONObject(new String(traffic.getMessage()));
+
+		String sender_id = message.getString("sender_id");
+
+		if(sender_id.equals(_SERVER_CONNECTION.getControledUserId())) {
+			String path_dir = message.getString("path_dir");
+			JSONArray directory = FileManagerSource.getDirContent(path_dir);
+
+			_SERVER_CONNECTION.sendTraffic(new JSONObject()
+				.put("destination_id", sender_id)
+					.put("sender_id", _SERVER_CONNECTION.getUserId())
+						.put("action","setControledUserDirectory")
+							.put("directory", directory.toString())
+								.toString()
+									.getBytes(), null);
+		}
+	}
+
+	public void setControledUserDirectory(TrafficModel traffic) {
+		JSONObject message = new JSONObject(new String(traffic.getMessage()));
+
+		String sender_id = message.getString("sender_id");
+
+		if(_SERVER_CONNECTION.getRemoteUsersIds().contains(sender_id)) {
+			_GUI_COMPONENTS.file_manager.setControledUserDirectory(
+				new JSONArray(message.getString("directory"))
 			);
 		}
 	}

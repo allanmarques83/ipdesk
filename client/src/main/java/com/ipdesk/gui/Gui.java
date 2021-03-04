@@ -2,13 +2,13 @@ package gui;
 
 import javax.swing.JTabbedPane;
 
-import gui.file_manager.FileManager;
 import gui.screen.Screen;
 import gui.stage.Stage;
 import gui.stage.buttons.ButtonConnect;
 import gui.stage.tables.ActiveRemoteAccessTable;
 import gui.swing.Label;
 import gui.swing.TextField;
+import services.file_manager.FileManagerSource;
 
 public class Gui {
     public TextField textfield_client_id;
@@ -20,5 +20,5 @@ public class Gui {
     public Label label_status;
     public Screen screen_frame;
     public Stage stage_frame;
-    public FileManager file_manager;
+    public FileManagerSource file_manager;
 }

@@ -12,10 +12,57 @@ import javax.swing.filechooser.FileSystemView;
 
 import org.json.JSONArray;
 
+import gui.file_manager.FileManager;
+import remote.ServerConnection;
+import resources.Utils;
+
 public class FileManagerSource 
 {
-    public static JSONArray getDirContent(String path_dir) {
+	FileManager _FILE_MANAGER;
 
+	ServerConnection _SERVER_CONNECTION;
+
+	String _REMOTE_ID;
+
+	public FileManagerSource(ServerConnection server_connection) {
+		_SERVER_CONNECTION = server_connection;
+		_FILE_MANAGER = new FileManager(action -> processEventState(action));
+	}
+
+	private void processEventState(String action) {
+		String event = Utils.getExpression("<(.*?):(.*?)>", action);
+
+		switch (event) {
+			case "GET_CONTROLLED_DIRECTORY_CONTENT":
+				getControlledDirectoryContent(
+					Utils.getExpression("<GET_CONTROLLED_DIRECTORY_CONTENT:(.*?)>", action)
+				);
+				break;
+			default:
+				break;
+		}
+	}
+
+	private void getControlledDirectoryContent(String directory) {
+		_SERVER_CONNECTION._OUTCOMING_USER_ACTION.getControledUserDirectory(
+			_REMOTE_ID, directory
+		);
+	}
+
+	public void setVisible(boolean visible, String remote_id) {
+		_REMOTE_ID = remote_id;
+		_FILE_MANAGER.defVisible(visible);
+	}
+
+	public void setControledUserDrives(JSONArray drives) {
+		_FILE_MANAGER._TREES.fillTreeWithDrives("_TREE_CONTROLLED", drives);
+	}
+	public void setControledUserDirectory(JSONArray directory) {
+		_FILE_MANAGER._TREES.expandPathTree("_TREE_CONTROLLED", directory);
+	}
+
+    public static JSONArray getDirContent(String path_dir) 
+	{
         JSONArray json = new JSONArray();
 
 		Path dir = Paths.get(path_dir);
@@ -65,6 +112,7 @@ public class FileManagerSource
 		array.put((fsv.getHomeDirectory().getAbsolutePath().concat(
             String.format("<desktop:%s>", fsv.getHomeDirectory().getName()))
         ));
+
 		return array;
 	}
 }

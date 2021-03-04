@@ -135,4 +135,19 @@ public class OutcomingUserAction
 						.toString().getBytes(),
 							null);
 	}
+
+	public void getControledUserDrives(String remote_id) {
+		_SERVER_CONNECTION.sendTraffic(new JSONObject()
+			.put("destination_id", remote_id)
+				.put("action", "getControledUserDrives")
+					.toString().getBytes(), null);
+	}
+
+	public void getControledUserDirectory(String remote_id, String path_dir) {
+		_SERVER_CONNECTION.sendTraffic(new JSONObject()
+			.put("destination_id", remote_id)
+				.put("action", "getControledUserDirectory")
+					.put("path_dir", path_dir)
+						.toString().getBytes(), null);
+	}
 }

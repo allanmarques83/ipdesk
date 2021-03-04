@@ -2,21 +2,31 @@ package gui.file_manager;
 
 import javax.swing.WindowConstants;
 import java.awt.GridBagConstraints;
+import java.util.function.Consumer;
 
 import gui.file_manager.panels.FileManagerButtonsPanel;
 import gui.file_manager.panels.FileManagerTreePanel;
+import gui.file_manager.progress_bar.FileManagerProgressBarPanel;
 import gui.swing.Frame;
 import gui.swing.Panel;
 import remote.ServerConnection;
 import resources.Constants;
+import services.file_manager.FileManagerSource;
 
 
 public class FileManager extends Frame
 {
-    ServerConnection _SERVER_CONNECTION;
+    FileManagerButtonsPanel _BTN_CONTROLLER;
+    FileManagerButtonsPanel _BTN_CONTROLLED;
+    public FileManagerTreePanel _TREES;
+    FileManagerProgressBarPanel _PROGRESS;
 
-    public FileManager(ServerConnection server_connection) {
-        _SERVER_CONNECTION = server_connection;
+    public FileManager(Consumer<String> event) {
+
+        _BTN_CONTROLLER = new FileManagerButtonsPanel(event, "CONTROLLER");
+        _BTN_CONTROLLED = new FileManagerButtonsPanel(event, "CONTROLLED");
+        _TREES = new FileManagerTreePanel(event);
+        _PROGRESS = new FileManagerProgressBarPanel();
 
         this
             .defTitle("File Manager")
@@ -24,7 +34,7 @@ public class FileManager extends Frame
             .defLocationRelativeTo(null)
             .defBounds(0,0,600, 500)
             .attach(getMainPanel())
-            .defVisible( true );
+            .defVisible( false );
     }
     private Panel getMainPanel() {
 
@@ -36,16 +46,14 @@ public class FileManager extends Frame
 	        .grid(0,0)
 	        .weight(1,0)
 	        .anchor(GridBagConstraints.NORTH)
-	        .attach(new FileManagerButtonsPanel(), 
-	        	"");
+	        .attach(_BTN_CONTROLLER, "");
             
         stage_panel
             .fill(GridBagConstraints.HORIZONTAL)
             .grid(1,0)
             .weight(1,0)
             .anchor(GridBagConstraints.NORTH)
-            .attach(new FileManagerButtonsPanel(), 
-                "");
+            .attach(_BTN_CONTROLLED, "");
         
         stage_panel
             .fill(GridBagConstraints.BOTH)
@@ -53,8 +61,15 @@ public class FileManager extends Frame
             .weight(1,1)
             .gridwidth(2)
             .anchor(GridBagConstraints.NORTH)
-            .attach(new FileManagerTreePanel(), 
-                "");
+            .attach(_TREES, "");
+
+        stage_panel
+            .fill(GridBagConstraints.HORIZONTAL)
+            .grid(0,2)
+            .weight(1,0)
+            .gridwidth(2)
+            .anchor(GridBagConstraints.NORTH)
+            .attach(_PROGRESS, "");
 
         return stage_panel;
     }
