@@ -22,9 +22,9 @@ public class FileManagerRendererTree implements TreeCellRenderer
 	{
         String tree_data = value.toString();
 
-        String tree_type = Utils.getExpression("<(.+?):(.+?)>", tree_data);
+        String tree_type = Utils.getExpression("<(.+?):(.+?)>", tree_data, 1);
         String tree_value = Utils.getExpression(
-            String.format("<%s:(.*?)>", tree_type), tree_data
+            String.format("<%s:(.*?)>", tree_type), tree_data, 1
         );
 
         Label leaf_label = new Label(

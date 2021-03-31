@@ -18,7 +18,7 @@ public class FileManagerButtonsPanel extends Panel
 {
     Consumer<String> _EVENT;
     
-    public FileManagerButtonsPanel(Consumer<String> event, String identity) {
+    public FileManagerButtonsPanel(Consumer<String> event, String tree_name) {
         super();
 
         _EVENT = event;
@@ -42,7 +42,7 @@ public class FileManagerButtonsPanel extends Panel
             .grid(0,2)
             .weight(1,1)
 	        .anchor(GridBagConstraints.NORTHWEST)
-	        .attach(getButtons(identity), "");
+	        .attach(getButtons(tree_name), "");
     }
 
     public Panel getTitle() {
@@ -75,7 +75,7 @@ public class FileManagerButtonsPanel extends Panel
             return title_panel;
     }
 
-    public Panel getButtons(String identity) {
+    public Panel getButtons(String tree_name) {
         Panel buttons_panel = new Panel()
         .defBackground(Constants.Colors.white);
 
@@ -85,17 +85,17 @@ public class FileManagerButtonsPanel extends Panel
         .insets(10,0,5,0)
         .anchor(GridBagConstraints.NORTHWEST)
         .attach(new Button("", Utils.toIcon(
-            String.format("images/%s.png", identity.equals("CONTROLLER") ? "file_upload" : "file_download")
+            String.format("images/%s.png", tree_name.equals("CONTROLLER") ? "file_upload" : "file_download")
             ))
             .defFocusPainted(false)
             .defBackground(Constants.Colors.white)
             .defToolTipText(
                 String.format(
-                    "%s File/Directory (Enter)", identity.equals("CONTROLLER") ? "Upload" : "Download"
+                    "%s File/Directory (Enter)", tree_name.equals("CONTROLLER") ? "Upload" : "Download"
                 )
             )
             .defActionListener(e -> _EVENT.accept(
-                String.format("FILE_TRANSFER_%s", identity)
+                String.format("<FILE_TRANSFER_%s:>", tree_name)
             )),
         "");
         

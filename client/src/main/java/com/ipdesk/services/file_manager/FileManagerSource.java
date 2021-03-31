@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Stream;
 import java.util.Locale;
 
@@ -30,13 +31,16 @@ public class FileManagerSource
 	}
 
 	private void processEventState(String action) {
-		String event = Utils.getExpression("<(.*?):(.*?)>", action);
+		String event = Utils.getExpression("<(.*?):(.*?)>", action, 1);
 
 		switch (event) {
 			case "GET_CONTROLLED_DIRECTORY_CONTENT":
 				getControlledDirectoryContent(
-					Utils.getExpression("<GET_CONTROLLED_DIRECTORY_CONTENT:(.*?)>", action)
+					Utils.getExpression("<GET_CONTROLLED_DIRECTORY_CONTENT:(.*?)>", action, 1)
 				);
+				break;
+			case "FILE_TRANSFER_CONTROLLER":
+				uploadFileContent();
 				break;
 			default:
 				break;
@@ -49,6 +53,23 @@ public class FileManagerSource
 		);
 	}
 
+	public boolean uploadFileContent() {
+		if(!_FILE_MANAGER._TREES.hasSelectionInBothTrees()) {
+			return Utils.Error("Please, select in both trees!");
+		}
+		String destination_path = _FILE_MANAGER._TREES.getSelectDestinationPath(
+			"_TREE_CONTROLLED"
+		);
+		List<File> content_to_upload = _FILE_MANAGER._TREES.getSelectedNodes(
+			"_TREE_CONTROLLER"
+		);
+		
+		FileManagerZipContent zip_creator = new FileManagerZipContent();
+		content_to_upload.stream().forEach(zip_creator::add);
+		zip_creator.getZipBytes();
+		return true;
+	}
+
 	public void setVisible(boolean visible, String remote_id) {
 		_REMOTE_ID = remote_id;
 		_FILE_MANAGER.defVisible(visible);
@@ -57,8 +78,9 @@ public class FileManagerSource
 	public void setControledUserDrives(JSONArray drives) {
 		_FILE_MANAGER._TREES.fillTreeWithDrives("_TREE_CONTROLLED", drives);
 	}
+
 	public void setControledUserDirectory(JSONArray directory) {
-		_FILE_MANAGER._TREES.expandPathTree("_TREE_CONTROLLED", directory);
+		_FILE_MANAGER._TREES.fillNodeTreeWithContent("_TREE_CONTROLLED", directory);
 	}
 
     public static JSONArray getDirContent(String path_dir) 

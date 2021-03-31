@@ -247,14 +247,14 @@ public class Utils {
         }
     }
 
-    public static String getExpression(String regex, String search) {
+    public static String getExpression(String regex, String search, int macth_position) {
         Pattern pattern = Pattern.compile(regex);
 		Matcher matcher = pattern.matcher(search);
 
 		matcher.find();
 		
 		try {
-			return matcher.group(1);
+			return matcher.group(macth_position);
 		}
 		catch(IllegalStateException e) {	
 			return "";
