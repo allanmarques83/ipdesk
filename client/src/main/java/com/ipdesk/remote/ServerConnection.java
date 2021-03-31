@@ -151,11 +151,12 @@ public class ServerConnection extends UserServer
         this.buffer_stream.flush();
     }
 
-    public boolean sendTraffic(byte[] message, byte[] object) 
-    {
-        OUT_TRAFFIC_QUEUE.add(new TrafficModel()
-            .setMessage(message)
-            	.setObject(object));
+    public boolean sendTraffic(byte[] message, byte[] object) {
+        OUT_TRAFFIC_QUEUE.add(
+            new TrafficModel()
+                .setMessage(message)
+            	.setObject(object)
+            );
 
         return true;
     }
@@ -174,9 +175,9 @@ public class ServerConnection extends UserServer
 				.put("MAC", Utils.getMacAddress())
 				.put("SYSTEM_VERSION", getSystemVersion())
 				.put("SYSTEM_LANGUAGE", getLanguage())
-					.toString()
-						.getBytes(),
-			null);
+				.toString().getBytes(),
+			null
+        );
 	}
 
     public int getOutTrafficQueueSize() {

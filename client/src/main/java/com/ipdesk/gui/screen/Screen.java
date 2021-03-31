@@ -10,13 +10,13 @@ import gui.swing.Frame;
 import gui.swing.Panel;
 import remote.ServerConnection;
 import resources.Constants;
-import services.screen.ScreenCapture;
+import services.screen.ScreenSender;
 
 public class Screen extends Frame 
 {
 	ServerConnection _SERVER_CONNECTION;
 	Language _LANGUAGE;
-	public ScreenCapture _SCREEN_CAPTURE;
+	public ScreenSender _SCREEN_SENDER;
 
 	public ScreenTabsPanel _SCREEN_TABS;
 
@@ -25,7 +25,7 @@ public class Screen extends Frame
 		_SERVER_CONNECTION = server_connection;
 		_LANGUAGE = _SERVER_CONNECTION.getLanguage();
 
-		_SCREEN_CAPTURE = new ScreenCapture(server_connection);
+		_SCREEN_SENDER = new ScreenSender(server_connection);
 
 		_SCREEN_TABS = new ScreenTabsPanel(_SERVER_CONNECTION);
 		_SCREEN_TABS.setCloseTab(params -> this.closeTab(params));

@@ -75,13 +75,15 @@ public class IncomingServerAction
 			_SERVER_CONNECTION.setControledUserId(sender_id);
 		}
 
-		return _SERVER_CONNECTION.sendTraffic(new JSONObject()
-			.put("destination_id", sender_id)
-			.put("sender_id", _SERVER_CONNECTION.getUserId())
+		return _SERVER_CONNECTION.sendTraffic(
+			new JSONObject()
+				.put("destination_id", sender_id)
+				.put("sender_id", _SERVER_CONNECTION.getUserId())
 				.put("action","responseAttemptConnection")
-					.put("response", is_valid_connection)
-						.toString()
-							.getBytes(), null);
+				.put("response", is_valid_connection)
+				.toString().getBytes(), 
+			null
+		);
 	}
 
 	public boolean responseAttemptConnection(TrafficModel traffic) {
@@ -140,7 +142,7 @@ public class IncomingServerAction
 		String sender_id = message.getString("sender_id");
 
 		if(sender_id.equals(_SERVER_CONNECTION.getControledUserId())) {
-			_GUI_COMPONENTS.screen_frame._SCREEN_CAPTURE.startSendScreen(
+			_GUI_COMPONENTS.screen_frame._SCREEN_SENDER.startSendScreen(
 				message.getInt("monitor_resolution")
 			);
 		}
@@ -168,7 +170,7 @@ public class IncomingServerAction
 		String sender_id = message.getString("sender_id");
 
 		if(sender_id.equals(_SERVER_CONNECTION.getControledUserId())) {
-			_GUI_COMPONENTS.screen_frame._SCREEN_CAPTURE.stopSendScreen();
+			_GUI_COMPONENTS.screen_frame._SCREEN_SENDER.stopSendScreen();
 		}
 	}
 
@@ -179,7 +181,7 @@ public class IncomingServerAction
 		int resolution = message.getInt("resolution");
 
 		if(sender_id.equals(_SERVER_CONNECTION.getControledUserId())) {
-			_GUI_COMPONENTS.screen_frame._SCREEN_CAPTURE.setScreenResolution(resolution);
+			_GUI_COMPONENTS.screen_frame._SCREEN_SENDER.setScreenResolution(resolution);
 		}
 	}
 
@@ -190,7 +192,7 @@ public class IncomingServerAction
 		float quality = message.getFloat("quality");
 
 		if(sender_id.equals(_SERVER_CONNECTION.getControledUserId())) {
-			_GUI_COMPONENTS.screen_frame._SCREEN_CAPTURE.setScreenQuality(quality);
+			_GUI_COMPONENTS.screen_frame._SCREEN_SENDER.setScreenQuality(quality);
 		}
 	}
 
@@ -235,16 +237,19 @@ public class IncomingServerAction
 
 		String sender_id = message.getString("sender_id");
 		
-		if(sender_id.equals(_SERVER_CONNECTION.getControledUserId())) {
+		if(sender_id.equals(_SERVER_CONNECTION.getControledUserId())) 
+		{
 			JSONArray drives = FileManagerSource.getDrives();
 			
-			_SERVER_CONNECTION.sendTraffic(new JSONObject()
-				.put("destination_id", sender_id)
+			_SERVER_CONNECTION.sendTraffic(
+				new JSONObject()
+					.put("destination_id", sender_id)
 					.put("sender_id", _SERVER_CONNECTION.getUserId())
-						.put("action","setControledUserDrives")
-							.put("drives", drives.toString())
-								.toString()
-									.getBytes(), null);
+					.put("action","setControledUserDrives")
+					.put("drives", drives.toString())
+					.toString().getBytes(), 
+				null
+			);
 		}
 	}
 
@@ -267,17 +272,20 @@ public class IncomingServerAction
 
 		String sender_id = message.getString("sender_id");
 
-		if(sender_id.equals(_SERVER_CONNECTION.getControledUserId())) {
+		if(sender_id.equals(_SERVER_CONNECTION.getControledUserId())) 
+		{
 			String path_dir = message.getString("path_dir");
 			JSONArray directory = FileManagerSource.getDirContent(path_dir);
 
-			_SERVER_CONNECTION.sendTraffic(new JSONObject()
-				.put("destination_id", sender_id)
+			_SERVER_CONNECTION.sendTraffic(
+				new JSONObject()
+					.put("destination_id", sender_id)
 					.put("sender_id", _SERVER_CONNECTION.getUserId())
-						.put("action","setControledUserDirectory")
-							.put("directory", directory.toString())
-								.toString()
-									.getBytes(), null);
+					.put("action","setControledUserDirectory")
+					.put("directory", directory.toString())
+					.toString().getBytes(), 
+				null
+			);
 		}
 	}
 
@@ -286,7 +294,21 @@ public class IncomingServerAction
 
 		String sender_id = message.getString("sender_id");
 
-		if(_SERVER_CONNECTION.getRemoteUsersIds().contains(sender_id)) {
+		if(_SERVER_CONNECTION.getRemoteUsersIds().contains(sender_id)) 
+		{
+			_GUI_COMPONENTS.file_manager.setControledUserDirectory(
+				new JSONArray(message.getString("directory"))
+			);
+		}
+	}
+
+	public void sendControledUserFile(TrafficModel traffic) {
+		JSONObject message = new JSONObject(new String(traffic.getMessage()));
+
+		String sender_id = message.getString("sender_id");
+
+		if(sender_id.equals(_SERVER_CONNECTION.getControledUserId())) 
+		{
 			_GUI_COMPONENTS.file_manager.setControledUserDirectory(
 				new JSONArray(message.getString("directory"))
 			);

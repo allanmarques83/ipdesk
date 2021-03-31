@@ -8,13 +8,13 @@ import java.io.IOException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-public class FileManagerZipContent {
+public class FileManagerZipCreator {
     ByteArrayOutputStream _BYTES_STREAM;
     ZipOutputStream _ZIP_STREAM;
 
     File _ROOT_DIR;
 
-    public FileManagerZipContent() {
+    public FileManagerZipCreator() {
         _BYTES_STREAM = new ByteArrayOutputStream();
         _ZIP_STREAM = new ZipOutputStream(_BYTES_STREAM);
         _ZIP_STREAM.setLevel(9);
@@ -22,7 +22,7 @@ public class FileManagerZipContent {
         _ROOT_DIR = null;
     }
 
-    public void add(File file) 
+    public void addToZip(File file) 
 	{
 		try  {	
             this.setRootDirectory(file);	

@@ -1,35 +1,27 @@
 package services.screen;
 
-import java.util.Map;
 import java.util.Vector;
 
 import org.json.JSONObject;
 
-import java.util.HashMap;
-
 import remote.ServerConnection;
 import resources.Utils;
 import traffic_model.TrafficModel;
-import resources.Constants;
 
-public class ScreenCapture
+public class ScreenSender
 {
 	ServerConnection _SERVER_CONNECTION;
 	private ScreenGenerator screen_generator;
-
-	private Map<String, Integer> screen_resolutions;
 	
 	private boolean SEND_SCREEN = false;
 	private float _SCREEN_QUALITY;
 	private int _SCREEN_RESOLUTION;
 
-	public ScreenCapture(ServerConnection server_connection) {
+	public ScreenSender(ServerConnection server_connection) {
 		_SERVER_CONNECTION = server_connection;
 
 		screen_generator = new ScreenGenerator();
 
-		screen_resolutions = new HashMap<>();
-		setScreenResolutions();
 		setScreenQuality(0.4f);
 	}
 
@@ -47,7 +39,7 @@ public class ScreenCapture
 						byte[] screen = screen_generator.getCompressBytesScreen(
 							_SCREEN_RESOLUTION, _SCREEN_QUALITY);
 						
-						boolean hasImageToSend = isImagesInQueue(
+						boolean hasImageToSend = hasImagesInQueue(
 							_SERVER_CONNECTION.getTrafficQueue()
 						);
 
@@ -69,16 +61,6 @@ public class ScreenCapture
 		SEND_SCREEN = false;
 	}
 
-	private void setScreenResolutions() {
-
-		int width = Constants.Monitor.width;
-		Double percent = (25.0/100.0)*width;
-		int low_width = width-percent.intValue();
-
-		screen_resolutions.put(String.format("original", width), width);
-		screen_resolutions.put(String.format("optimized", low_width), low_width);
-	}
-
 	public void setScreenQuality(float quality) {
 		_SCREEN_QUALITY = quality;
 	}
@@ -95,7 +77,7 @@ public class ScreenCapture
 		return _SCREEN_RESOLUTION;
 	}
 
-	public boolean isImagesInQueue(Vector<TrafficModel> traffic_queue) {
+	public boolean hasImagesInQueue(Vector<TrafficModel> traffic_queue) {
 		return traffic_queue.stream().anyMatch(
 			traffic -> new JSONObject(
 				new String(traffic.getMessage())

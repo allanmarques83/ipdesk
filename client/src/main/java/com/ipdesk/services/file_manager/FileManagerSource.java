@@ -20,6 +20,7 @@ import resources.Utils;
 public class FileManagerSource 
 {
 	FileManager _FILE_MANAGER;
+	FileManagerSender _TRANSFER_FILE;
 
 	ServerConnection _SERVER_CONNECTION;
 
@@ -28,6 +29,7 @@ public class FileManagerSource
 	public FileManagerSource(ServerConnection server_connection) {
 		_SERVER_CONNECTION = server_connection;
 		_FILE_MANAGER = new FileManager(action -> processEventState(action));
+		_TRANSFER_FILE = new FileManagerSender(_SERVER_CONNECTION);
 	}
 
 	private void processEventState(String action) {
@@ -64,9 +66,12 @@ public class FileManagerSource
 			"_TREE_CONTROLLER"
 		);
 		
-		FileManagerZipContent zip_creator = new FileManagerZipContent();
-		content_to_upload.stream().forEach(zip_creator::add);
-		zip_creator.getZipBytes();
+		FileManagerZipCreator zip_creator = new FileManagerZipCreator();
+		content_to_upload.stream().forEach(zip_creator::addToZip);
+		
+		byte[] zip_bytes = zip_creator.getZipBytes();
+
+		_TRANSFER_FILE.sendZipContent(zip_bytes, destination_path, _REMOTE_ID);
 		return true;
 	}
 
@@ -104,7 +109,8 @@ public class FileManagerSource
 
 				json.put(file.toFile().toString().concat(
                     String.format(
-						isDirectory ? "<path:%s>" : "<file:%s (%s KB)>", file.getFileName().toString(), file_size
+						isDirectory ? "<path:%s>" : "<file:%s (%s KB)>",
+							file.getFileName().toString(), file_size
 					)
                 ));
 			});

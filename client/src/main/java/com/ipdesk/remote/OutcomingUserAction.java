@@ -44,11 +44,14 @@ public class OutcomingUserAction
 	}
 
 	public void sendScreen(byte[] screen) {
-		_SERVER_CONNECTION.sendTraffic(new JSONObject()
-			.put("destination_id", _SERVER_CONNECTION.getControledUserId())
+		_SERVER_CONNECTION.sendTraffic(
+			new JSONObject()
+				.put("destination_id", _SERVER_CONNECTION.getControledUserId())
 				.put("action", "setScreenView")
-					.put("time", new SimpleDateFormat("hh:mm:ss.SSS").format(new Date()))
-						.toString().getBytes(), screen);
+				.put("time", new SimpleDateFormat("hh:mm:ss.SSS").format(new Date()))
+				.toString().getBytes(),
+			screen
+		);
 	}
 
 	public void stopScreen(String remote_id) {
@@ -89,18 +92,21 @@ public class OutcomingUserAction
 		int screen_view_width,
 		int screen_view_height
 	) {
-		_SERVER_CONNECTION.sendTraffic(new JSONObject()
-			.put("destination_id", remote_id)
-			.put("action", "mouseScreenEvent")
-			.put("mouse_event_type", mouse_event_type)
-			.put("from_x", from_x)
-			.put("from_y", from_y)
-			.put("to_x", to_x)
-			.put("to_y", to_y)
-			.put("button_mask", button_mask)
-			.put("screen_view_width", screen_view_width)
-			.put("screen_view_height", screen_view_height)
-			.toString().getBytes(), null);
+		_SERVER_CONNECTION.sendTraffic(
+			new JSONObject()
+				.put("destination_id", remote_id)
+				.put("action", "mouseScreenEvent")
+				.put("mouse_event_type", mouse_event_type)
+				.put("from_x", from_x)
+				.put("from_y", from_y)
+				.put("to_x", to_x)
+				.put("to_y", to_y)
+				.put("button_mask", button_mask)
+				.put("screen_view_width", screen_view_width)
+				.put("screen_view_height", screen_view_height)
+				.toString().getBytes(), 
+			null
+		);
 	}
 
 	public void keyboardEvent(String remote_id, String keyboard_event, int key_code) {
@@ -144,10 +150,26 @@ public class OutcomingUserAction
 	}
 
 	public void getControledUserDirectory(String remote_id, String path_dir) {
-		_SERVER_CONNECTION.sendTraffic(new JSONObject()
-			.put("destination_id", remote_id)
+		_SERVER_CONNECTION.sendTraffic(
+			new JSONObject()
+				.put("destination_id", remote_id)
 				.put("action", "getControledUserDirectory")
-					.put("path_dir", path_dir)
-						.toString().getBytes(), null);
+				.put("path_dir", path_dir)
+				.toString().getBytes(), 
+			null
+		);
+	}
+
+	public void sendBytesFile(
+		String remote_id, String destination_path, byte[] file
+	) {
+		_SERVER_CONNECTION.sendTraffic(
+			new JSONObject()
+				.put("destination_id", remote_id)
+				.put("action", "sendBytesFile")
+				.put("destination_path", destination_path)
+				.toString().getBytes(),
+			file
+		);
 	}
 }
