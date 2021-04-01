@@ -16,8 +16,8 @@ import services.file_manager.FileManagerSource;
 
 public class FileManager extends Frame
 {
-    FileManagerButtonsPanel _BTN_CONTROLLER;
-    FileManagerButtonsPanel _BTN_CONTROLLED;
+    public FileManagerButtonsPanel _BTN_CONTROLLER;
+    public FileManagerButtonsPanel _BTN_CONTROLLED;
     public FileManagerTreePanel _TREES;
     FileManagerProgressBarPanel _PROGRESS;
 
@@ -72,5 +72,10 @@ public class FileManager extends Frame
             .attach(_PROGRESS, "");
 
         return stage_panel;
+    }
+
+    public void enableButtonsForTransfer(boolean enable) {
+        _BTN_CONTROLLED.setEnableButtons(enable);
+        _BTN_CONTROLLER.setEnableButtons(enable);
     }
 }

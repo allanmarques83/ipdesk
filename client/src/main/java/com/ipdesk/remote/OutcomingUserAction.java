@@ -46,7 +46,7 @@ public class OutcomingUserAction
 	public void sendScreen(byte[] screen) {
 		_SERVER_CONNECTION.sendTraffic(
 			new JSONObject()
-				.put("destination_id", _SERVER_CONNECTION.getControledUserId())
+				.put("destination_id", _SERVER_CONNECTION.getControlledUserId())
 				.put("action", "setScreenView")
 				.put("time", new SimpleDateFormat("hh:mm:ss.SSS").format(new Date()))
 				.toString().getBytes(),
@@ -119,7 +119,7 @@ public class OutcomingUserAction
 
 	public void closeControledId() {
 
-		String controled_id = _SERVER_CONNECTION.getControledUserId();
+		String controled_id = _SERVER_CONNECTION.getControlledUserId();
 		_SERVER_CONNECTION.setControledUserId(null);
 		
 		_SERVER_CONNECTION.sendTraffic(
@@ -161,12 +161,12 @@ public class OutcomingUserAction
 	}
 
 	public void sendBytesFile(
-		String remote_id, String destination_path, byte[] file
+		String remote_id, String destination_path, byte[] file, String action
 	) {
 		_SERVER_CONNECTION.sendTraffic(
 			new JSONObject()
 				.put("destination_id", remote_id)
-				.put("action", "sendBytesFile")
+				.put("action", action)
 				.put("destination_path", destination_path)
 				.toString().getBytes(),
 			file

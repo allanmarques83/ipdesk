@@ -18,7 +18,7 @@ public class UserServer extends UserSystem
 		_CONTROLED_USER_ID = controled_user_id;
     }
 
-    public String getControledUserId() {
+    public String getControlledUserId() {
 		return _CONTROLED_USER_ID;
     }
 

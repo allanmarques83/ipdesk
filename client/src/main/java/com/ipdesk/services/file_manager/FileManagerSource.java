@@ -42,7 +42,7 @@ public class FileManagerSource
 				);
 				break;
 			case "FILE_TRANSFER_CONTROLLER":
-				uploadFileContent();
+				transferFileToControlled();
 				break;
 			default:
 				break;
@@ -55,23 +55,41 @@ public class FileManagerSource
 		);
 	}
 
-	public boolean uploadFileContent() {
+	private boolean transferFileToControlled() {
 		if(!_FILE_MANAGER._TREES.hasSelectionInBothTrees()) {
 			return Utils.Error("Please, select in both trees!");
 		}
+
 		String destination_path = _FILE_MANAGER._TREES.getSelectDestinationPath(
 			"_TREE_CONTROLLED"
 		);
-		List<File> content_to_upload = _FILE_MANAGER._TREES.getSelectedNodes(
+		JSONArray content_to_upload = _FILE_MANAGER._TREES.getSelectedNodes(
 			"_TREE_CONTROLLER"
 		);
-		
+
+		_FILE_MANAGER.enableButtonsForTransfer(false);
+		_FILE_MANAGER._BTN_CONTROLLER.setEnableButton(true, "btn_stop");
+
+		return uploadFileContent(
+			content_to_upload, destination_path, "transferFileToControlled"
+		);
+	}
+
+	public boolean uploadFileContent(
+		JSONArray content_to_upload, String destination_path, String action
+	) {
 		FileManagerZipCreator zip_creator = new FileManagerZipCreator();
-		content_to_upload.stream().forEach(zip_creator::addToZip);
+
+		content_to_upload.forEach(path -> zip_creator.addToZip(
+			new File(path.toString())
+		));
 		
 		byte[] zip_bytes = zip_creator.getZipBytes();
 
-		_TRANSFER_FILE.sendZipContent(zip_bytes, destination_path, _REMOTE_ID);
+		_TRANSFER_FILE.sendZipContent(
+			zip_bytes, destination_path, _REMOTE_ID, action
+		);
+		
 		return true;
 	}
 

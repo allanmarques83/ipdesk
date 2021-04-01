@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import net.lingala.zip4j.ZipFile;
+
 public class FileManagerZipCreator {
     ByteArrayOutputStream _BYTES_STREAM;
     ZipOutputStream _ZIP_STREAM;
@@ -135,16 +137,43 @@ public class FileManagerZipCreator {
         try
 		{
 			_ZIP_STREAM.close();
-            // File a = new File("/home/allan/ipdesk1.zip");
-            // a.createNewFile();
-			// FileOutputStream f = new FileOutputStream(a);
-			// _BYTES_STREAM.writeTo(f);
-			f.close();
 			_BYTES_STREAM.close();
 		}
 		catch (IOException e) {
 			e.printStackTrace();
 		}
 		return _BYTES_STREAM.toByteArray();
+    }
+
+    public static String writeZipBytes(byte[] zip_bytes, String destination_path) {
+        try {
+            File file_write = new File(
+                String.format("%s/ipdesk.zip", destination_path)
+            );
+            file_write.createNewFile();
+
+            FileOutputStream file_out_stream = new FileOutputStream(file_write, true);
+            file_out_stream.write(zip_bytes);
+            file_out_stream.close();
+
+            return null;
+        }
+        catch (IOException e) {
+            return e.getMessage();
+        }
+    }
+
+    public static boolean decompressZipFile(String destination_path) {
+        try {
+            String zip_file = String.format("%s/ipdesk.zip", destination_path);
+
+            ZipFile zipFile = new ZipFile(zip_file);
+            zipFile.extractAll(destination_path);
+            return true;
+        }
+        catch (IOException e) {
+            System.out.println(e.getMessage());
+            return false;
+        }
     }
 }

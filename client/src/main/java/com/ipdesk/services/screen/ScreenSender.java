@@ -35,7 +35,7 @@ public class ScreenSender
 			public void run() 
             {
 				try {
-					while(SEND_SCREEN && _SERVER_CONNECTION.getControledUserId() != null) {
+					while(SEND_SCREEN && _SERVER_CONNECTION.getControlledUserId() != null) {
 						byte[] screen = screen_generator.getCompressBytesScreen(
 							_SCREEN_RESOLUTION, _SCREEN_QUALITY);
 						

@@ -170,17 +170,15 @@ public class FileManagerTreePanel extends Panel
         return Utils.getExpression("(.*?)<(.*?):(.*?)>", node_path_name, 1);
     }
 
-    public List<File> getSelectedNodes(String tree_name) {
+    public JSONArray getSelectedNodes(String tree_name) {
         JTree tree = tree_name.equals("_TREE_CONTROLLER") ? _TREE_CONTROLLER : _TREE_CONTROLLED;
         Stream<TreePath> nodes = Arrays.stream(tree.getSelectionPaths());
 
-        return nodes.map(node -> {
+        return new JSONArray(nodes.map(node -> {
             DefaultMutableTreeNode tree_node = (DefaultMutableTreeNode)node.getLastPathComponent();
             String node_name = tree_node.getUserObject().toString();
             
-            return new File(
-                Utils.getExpression("(.*?)<(.*?):(.*?)>", node_name, 1)
-            );
-        }).collect(Collectors.toList());
+            return Utils.getExpression("(.*?)<(.*?):(.*?)>", node_name, 1);
+        }).collect(Collectors.toList()));
     }
 }

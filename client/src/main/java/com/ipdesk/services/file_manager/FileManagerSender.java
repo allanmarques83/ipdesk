@@ -18,7 +18,7 @@ public class FileManagerSender {
     }
 
     public void sendZipContent(
-        byte[] zip_file, String destination_path, String remote_id
+        byte[] zip_file, String destination_path, String remote_id, String action
     ) {
 
         // setTotalBytesToSend(zip_file.length);
@@ -27,19 +27,25 @@ public class FileManagerSender {
         {
             try {
                 ByteArrayInputStream input_stream = new ByteArrayInputStream(zip_file);
-                int bytes_to_send = 0;
-
-                while(bytes_to_send > -1) {
+                
+                while(true) {
                     byte[] buffer_to_send = new byte[MAX_BYTES_TO_SEND];
 
-                    bytes_to_send = input_stream.read(
+                    int bytes_to_send = input_stream.read(
                         buffer_to_send, 0, MAX_BYTES_TO_SEND
                     );
+
+                    if(bytes_to_send < 0) {
+                        _SERVER_CONNECTION._OUTCOMING_USER_ACTION.sendBytesFile(
+                            remote_id, destination_path, null, "transferFileToControlled"
+                        );
+                        break;
+                    }
 
                     buffer_to_send = Arrays.copyOf(buffer_to_send, bytes_to_send);
                     
                     _SERVER_CONNECTION._OUTCOMING_USER_ACTION.sendBytesFile(
-                        remote_id, destination_path, buffer_to_send
+                        remote_id, destination_path, buffer_to_send, action
                     );
                 }
             }

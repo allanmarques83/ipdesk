@@ -14,7 +14,7 @@ public class Panel extends JPanel
 {
 	GridBagConstraints grid;
 
-	 Map<String, Component> components;
+	public Map<String, Component> components;
 
     public Panel() {
 

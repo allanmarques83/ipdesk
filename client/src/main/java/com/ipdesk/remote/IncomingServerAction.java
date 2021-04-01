@@ -10,6 +10,7 @@ import org.json.JSONObject;
 import traffic_model.TrafficModel;
 import resources.Utils;
 import services.file_manager.FileManagerSource;
+import services.file_manager.FileManagerZipCreator;
 import services.screen.keyboard.KeyboardEventApply;
 import services.screen.mouse.MouseEventApply;
 import resources.Constants;
@@ -66,7 +67,7 @@ public class IncomingServerAction
 
 		boolean is_valid_connection = new AttemptConnection(
 			(UserServer)_SERVER_CONNECTION).isValid(
-				_SERVER_CONNECTION.getControledUserId(), sender_id, password);
+				_SERVER_CONNECTION.getControlledUserId(), sender_id, password);
 
 		if(is_valid_connection) {
 			_GUI_COMPONENTS.button_connect.setButtonConnectionAction(
@@ -128,7 +129,7 @@ public class IncomingServerAction
 		JSONObject message = new JSONObject(new String(traffic.getMessage()));
 		String sender_id = message.getString("sender_id");
 
-		if(_SERVER_CONNECTION.getControledUserId().equals(sender_id)) {
+		if(_SERVER_CONNECTION.getControlledUserId().equals(sender_id)) {
 			_GUI_COMPONENTS.button_connect.setButtonConnectionAction(
 				"connect_to", ""
 			);
@@ -141,7 +142,7 @@ public class IncomingServerAction
 
 		String sender_id = message.getString("sender_id");
 
-		if(sender_id.equals(_SERVER_CONNECTION.getControledUserId())) {
+		if(sender_id.equals(_SERVER_CONNECTION.getControlledUserId())) {
 			_GUI_COMPONENTS.screen_frame._SCREEN_SENDER.startSendScreen(
 				message.getInt("monitor_resolution")
 			);
@@ -169,7 +170,7 @@ public class IncomingServerAction
 		JSONObject message = new JSONObject(new String(traffic.getMessage()));
 		String sender_id = message.getString("sender_id");
 
-		if(sender_id.equals(_SERVER_CONNECTION.getControledUserId())) {
+		if(sender_id.equals(_SERVER_CONNECTION.getControlledUserId())) {
 			_GUI_COMPONENTS.screen_frame._SCREEN_SENDER.stopSendScreen();
 		}
 	}
@@ -180,7 +181,7 @@ public class IncomingServerAction
 		String sender_id = message.getString("sender_id");
 		int resolution = message.getInt("resolution");
 
-		if(sender_id.equals(_SERVER_CONNECTION.getControledUserId())) {
+		if(sender_id.equals(_SERVER_CONNECTION.getControlledUserId())) {
 			_GUI_COMPONENTS.screen_frame._SCREEN_SENDER.setScreenResolution(resolution);
 		}
 	}
@@ -191,7 +192,7 @@ public class IncomingServerAction
 		String sender_id = message.getString("sender_id");
 		float quality = message.getFloat("quality");
 
-		if(sender_id.equals(_SERVER_CONNECTION.getControledUserId())) {
+		if(sender_id.equals(_SERVER_CONNECTION.getControlledUserId())) {
 			_GUI_COMPONENTS.screen_frame._SCREEN_SENDER.setScreenQuality(quality);
 		}
 	}
@@ -201,7 +202,7 @@ public class IncomingServerAction
 
 		String sender_id = message.getString("sender_id");
 		
-		if(sender_id.equals(_SERVER_CONNECTION.getControledUserId())) {
+		if(sender_id.equals(_SERVER_CONNECTION.getControlledUserId())) {
 			String mouse_event_type = message.getString("mouse_event_type");
 
 			_MOUSE_EVENT._MOUSE_ACTIONS.get(mouse_event_type).accept(new Object[]{
@@ -222,7 +223,7 @@ public class IncomingServerAction
 
 		String sender_id = message.getString("sender_id");
 		
-		if(sender_id.equals(_SERVER_CONNECTION.getControledUserId())) {
+		if(sender_id.equals(_SERVER_CONNECTION.getControlledUserId())) {
 			String keyboard_event = message.getString("keyboard_event");
 
 			_KEYBOARD_EVENT._KEYBOARD_ACTIONS.get(keyboard_event).accept(
@@ -237,7 +238,7 @@ public class IncomingServerAction
 
 		String sender_id = message.getString("sender_id");
 		
-		if(sender_id.equals(_SERVER_CONNECTION.getControledUserId())) 
+		if(sender_id.equals(_SERVER_CONNECTION.getControlledUserId())) 
 		{
 			JSONArray drives = FileManagerSource.getDrives();
 			
@@ -272,7 +273,7 @@ public class IncomingServerAction
 
 		String sender_id = message.getString("sender_id");
 
-		if(sender_id.equals(_SERVER_CONNECTION.getControledUserId())) 
+		if(sender_id.equals(_SERVER_CONNECTION.getControlledUserId())) 
 		{
 			String path_dir = message.getString("path_dir");
 			JSONArray directory = FileManagerSource.getDirContent(path_dir);
@@ -302,16 +303,32 @@ public class IncomingServerAction
 		}
 	}
 
-	public void sendControledUserFile(TrafficModel traffic) {
+	public boolean transferFileToControlled(TrafficModel traffic) {
 		JSONObject message = new JSONObject(new String(traffic.getMessage()));
 
 		String sender_id = message.getString("sender_id");
 
-		if(sender_id.equals(_SERVER_CONNECTION.getControledUserId())) 
+		if(sender_id.equals(_SERVER_CONNECTION.getControlledUserId())) 
 		{
-			_GUI_COMPONENTS.file_manager.setControledUserDirectory(
-				new JSONArray(message.getString("directory"))
+			byte[] zip_bytes = traffic.getObject();
+
+			if(zip_bytes == null) {
+				return FileManagerZipCreator.decompressZipFile(
+					message.getString("destination_path")
+				);
+			}
+
+			String erro_message = FileManagerZipCreator.writeZipBytes(
+				zip_bytes, message.getString("destination_path")
 			);
+
+			if(erro_message != null) {
+				System.out.printf("erro_message: %s%n", erro_message);
+				return false;
+			}
+
+			return true;
 		}
+		return false;
 	}
 }

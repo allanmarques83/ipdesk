@@ -17,6 +17,8 @@ import javax.swing.SwingConstants;
 public class FileManagerButtonsPanel extends Panel 
 {
     Consumer<String> _EVENT;
+
+    Panel _BUTTONS_PANEL;
     
     public FileManagerButtonsPanel(Consumer<String> event, String tree_name) {
         super();
@@ -76,17 +78,18 @@ public class FileManagerButtonsPanel extends Panel
     }
 
     public Panel getButtons(String tree_name) {
-        Panel buttons_panel = new Panel()
+        _BUTTONS_PANEL = new Panel()
         .defBackground(Constants.Colors.white);
 
-        buttons_panel.fill(GridBagConstraints.NONE)
+        _BUTTONS_PANEL.fill(GridBagConstraints.NONE)
         .grid(0,0)
         .weight(0,0)
         .insets(10,0,5,0)
         .anchor(GridBagConstraints.NORTHWEST)
         .attach(new Button("", Utils.toIcon(
-            String.format("images/%s.png", tree_name.equals("CONTROLLER") ? "file_upload" : "file_download")
-            ))
+            String.format(
+                "images/%s.png", tree_name.equals("CONTROLLER") ? "file_upload" : "file_download"
+            )))
             .defFocusPainted(false)
             .defBackground(Constants.Colors.white)
             .defToolTipText(
@@ -97,9 +100,9 @@ public class FileManagerButtonsPanel extends Panel
             .defActionListener(e -> _EVENT.accept(
                 String.format("<FILE_TRANSFER_%s:>", tree_name)
             )),
-        "");
+        "btn_transfer");
         
-        buttons_panel.fill(GridBagConstraints.NONE)
+        _BUTTONS_PANEL.fill(GridBagConstraints.NONE)
         .grid(1,0)
         .weight(0,0)
         .insets(10,0,5,0)
@@ -109,9 +112,9 @@ public class FileManagerButtonsPanel extends Panel
             .defBackground(Constants.Colors.white)
             .defToolTipText("Stop uploading files/folders")
             .defEnabled(false), 
-        "");
+        "btn_stop");
         
-        buttons_panel.fill(GridBagConstraints.NONE)
+        _BUTTONS_PANEL.fill(GridBagConstraints.NONE)
         .grid(2,0)
         .weight(0,0)
         .insets(10,0,5,0)
@@ -120,9 +123,9 @@ public class FileManagerButtonsPanel extends Panel
             .defFocusPainted(false)
             .defBackground(Constants.Colors.white)
             .defToolTipText("Create new folder"), 
-        "");
+        "btn_new_folder");
         
-        buttons_panel.fill(GridBagConstraints.NONE)
+        _BUTTONS_PANEL.fill(GridBagConstraints.NONE)
         .grid(3,0)
         .weight(0,0)
         .insets(10,0,5,0)
@@ -131,9 +134,9 @@ public class FileManagerButtonsPanel extends Panel
             .defFocusPainted(false)
             .defBackground(Constants.Colors.white)
             .defToolTipText("Rename Files/Folders (F2)"), 
-        "");
+        "btn_rename");
         
-        buttons_panel.fill(GridBagConstraints.NONE)
+        _BUTTONS_PANEL.fill(GridBagConstraints.NONE)
         .grid(4,0)
         .weight(0,0)
         .insets(10,0,5,0)
@@ -142,9 +145,9 @@ public class FileManagerButtonsPanel extends Panel
             .defFocusPainted(false)
             .defBackground(Constants.Colors.white)
             .defToolTipText("Reload directories and files (F5)"), 
-        "");
+        "btn_reload");
         
-        buttons_panel.fill(GridBagConstraints.NONE)
+        _BUTTONS_PANEL.fill(GridBagConstraints.NONE)
         .grid(5,0)
         .weight(1,0)
         .insets(10,0,5,0)
@@ -153,8 +156,18 @@ public class FileManagerButtonsPanel extends Panel
             .defFocusPainted(false)
             .defBackground(Constants.Colors.white)
             .defToolTipText("Really delete?"), 
-        "");
+        "btn_delete_file");
 
-        return buttons_panel;
+        return _BUTTONS_PANEL;
+    }
+
+    public void setEnableButtons(boolean enable) {
+        _BUTTONS_PANEL.components.values().stream().forEach(
+            component -> ((Button) component).defEnabled(enable)
+        );
+    }
+
+    public void setEnableButton(boolean enable, String component_name) {
+        ((Button)_BUTTONS_PANEL.components.get(component_name)).defEnabled(enable);
     }
 }
