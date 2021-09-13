@@ -120,6 +120,7 @@ public class FileManagerTreePanel extends Panel
         JTree tree = tree_name.equals("_TREE_CONTROLLER") ? _TREE_CONTROLLER : _TREE_CONTROLLED;
 
         DefaultMutableTreeNode selected_node = (DefaultMutableTreeNode)tree.getLastSelectedPathComponent();
+        selected_node.removeAllChildren();
 
         Iterator<Object> iterator = dirs_and_files.iterator();
 
@@ -128,6 +129,8 @@ public class FileManagerTreePanel extends Panel
         }
 
         tree.expandPath(new TreePath(selected_node.getPath()));
+        DefaultTreeModel model = (DefaultTreeModel)tree.getModel();
+        model.reload(selected_node);
     }
 
     public boolean hasSelectionInBothTrees() {
@@ -180,5 +183,10 @@ public class FileManagerTreePanel extends Panel
             
             return Utils.getExpression("(.*?)<(.*?):(.*?)>", node_name, 1);
         }).collect(Collectors.toList()));
+    }
+
+    public void enableTree(boolean enabled, String tree_name) {
+        JTree tree = tree_name.equals("_TREE_CONTROLLER") ? _TREE_CONTROLLER : _TREE_CONTROLLED;
+        tree.setEnabled(enabled);
     }
 }

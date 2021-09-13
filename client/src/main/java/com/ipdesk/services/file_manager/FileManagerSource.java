@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.Locale;
 
@@ -66,7 +67,7 @@ public class FileManagerSource
 		JSONArray content_to_upload = _FILE_MANAGER._TREES.getSelectedNodes(
 			"_TREE_CONTROLLER"
 		);
-
+		_FILE_MANAGER._TREES.enableTree(false, "_TREE_CONTROLLER");
 		_FILE_MANAGER.enableButtonsForTransfer(false);
 		_FILE_MANAGER._BTN_CONTROLLER.setEnableButton(true, "btn_stop");
 
@@ -78,14 +79,12 @@ public class FileManagerSource
 	public boolean uploadFileContent(
 		JSONArray content_to_upload, String destination_path, String action
 	) {
-		FileManagerZipCreator zip_creator = new FileManagerZipCreator();
+		List<File> list_of_files = content_to_upload.toList().stream().map(
+			obj_file -> new File(obj_file.toString())
+		).collect(Collectors.toList());
 
-		content_to_upload.forEach(path -> zip_creator.addToZip(
-			new File(path.toString())
-		));
+		byte[] zip_bytes = FileManagerZipCreator.generateZipFile(list_of_files);
 		
-		byte[] zip_bytes = zip_creator.getZipBytes();
-
 		_TRANSFER_FILE.sendZipContent(
 			zip_bytes, destination_path, _REMOTE_ID, action
 		);

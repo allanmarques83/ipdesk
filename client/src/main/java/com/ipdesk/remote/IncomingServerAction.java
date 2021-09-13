@@ -313,8 +313,24 @@ public class IncomingServerAction
 			byte[] zip_bytes = traffic.getObject();
 
 			if(zip_bytes == null) {
-				return FileManagerZipCreator.decompressZipFile(
+				System.out.println("zip_bytes");
+				
+				FileManagerZipCreator.decompressZipFile(
 					message.getString("destination_path")
+				);
+
+				JSONArray directory = FileManagerSource.getDirContent(
+					message.getString("destination_path")
+				);
+
+				return _SERVER_CONNECTION.sendTraffic(
+					new JSONObject()
+						.put("destination_id", sender_id)
+						.put("sender_id", _SERVER_CONNECTION.getUserId())
+						.put("action","setControledUserDirectory")
+						.put("directory", directory.toString())
+						.toString().getBytes(), 
+					null
 				);
 			}
 

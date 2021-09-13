@@ -1,0 +1,56 @@
+{
+    "predict_isg": {
+        "reviews": [{
+            "idObservacao": 1,
+            "review": ""
+        },{
+            "idObservacao": 2,
+            "review": ""
+        },{
+            "idObservacao": 3,
+            "review": ""
+        },{
+            "idObservacao": 4,
+            "review": ""
+        },{
+            "idObservacao": 5,
+            "review": ""
+        }]
+    },
+    "predict_ira": {
+        "reviews": [{
+            "idObservacao": 1,
+            "review": ""
+        },{
+            "idObservacao": 2,
+            "review": ""
+        },{
+            "idObservacao": 3,
+            "review": ""
+        },{
+            "idObservacao": 4,
+            "review": ""
+        },{
+            "idObservacao": 5,
+            "review": ""
+        }]
+    },
+    "predict_ird": {
+        "reviews": [{
+            "idObservacao": 1,
+            "review": ""
+        },{
+            "idObservacao": 2,
+            "review": ""
+        },{
+            "idObservacao": 3,
+            "review": ""
+        },{
+            "idObservacao": 4,
+            "review": ""
+        },{
+            "idObservacao": 5,
+            "review": ""
+        }]
+    }
+}
